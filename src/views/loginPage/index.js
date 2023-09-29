@@ -1,13 +1,61 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LoginService from "../../../services/LoginService";
+import AsyncStorageObject from "../../lib/AsyncStorage";
 
 const LoginPage=()=> {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const handleLogin = (values) => {
-    let data = new FormData()
-    data.append("email", email )
-    data.append("password", password )
+
+  const navigation = useNavigation()
+
+  useEffect(async ()=>{
+    let session_id =  await AsyncStorageObject.getItem("session_token");
+    if(session_id){
+      navigation.navigate("mydashboard")
+    }else{
+      navigation.navigate("Login")
+    }
+
+  },[])
+
+
+  const handleLogin = async (values) => {
+    let data = new FormData();
+    data.append('email', email);
+    data.append('password', password);
+    await LoginService.login(data, async (res) => {
+      if (res) {
+        await AsyncStorageObject.setItem('session_token', res?.user?.token);
+        if (res?.user?.token) {
+          navigation.navigate('mydashboard');
+        }
+      }
+    });
+
+    // try {
+    //   const response = await apiClient.post("v1/user/loginByPassword", {
+    //     data
+    //   },
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application/json', // Specify JSON content type
+    //     },
+    //   });
+    //   console.log('Response:', response);
+    // } catch (error) {
+    //   console.error('Error:', error.message);
+    // }
+
+    // fetch("https://730b-103-109-109-145.ngrok-free.app/v1/user/loginByPassword", {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     // Authorization: sessionToken,
+    //   },
+    //   body: data,
+    // })
   };
 
   return (
