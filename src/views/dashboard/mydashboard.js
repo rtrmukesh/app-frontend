@@ -1,14 +1,33 @@
-import React from 'react'
-import { Text, View } from "react-native"
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 
-const  mydashboard=(props)=> {
+const DashboardScreen = () => {
   return (
     <View>
-    <Text>
-      myDashboard
-    </Text>
+      <Text>Dashboard</Text>
     </View>
-  )
-}
+  );
+};
 
-export default mydashboard
+const CustomDrawerContent = (props) => {
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      {/* You can add custom items to the drawer here */}
+      {/* <DrawerItem label="Custom Item" onPress={() => {}} /> */}
+    </DrawerContentScrollView>
+  );
+};
+
+const Drawer = createDrawerNavigator();
+
+const mydashboard = ({ navigation }) => {
+  return (
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen name="Dashboard" component={DashboardScreen} />
+    </Drawer.Navigator>
+  );
+};
+
+export default mydashboard;
