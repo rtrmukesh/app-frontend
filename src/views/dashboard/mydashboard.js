@@ -1,8 +1,11 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
 import axios from "axios";
 import React, { useEffect, useState } from 'react';
-import { StatusBar, Text, View } from 'react-native';
+import { Image, StatusBar, Text, View } from 'react-native';
 import LottieView from 'lottie-react-native';
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
+import DotMenu from "../../components/Menu";
+
 const Drawer = createDrawerNavigator();
 
 const DashboardScreen = () => {
@@ -54,14 +57,38 @@ console.log('animationFile >>>----------------------------->',animationFile);
   );
 };
 
+
+
+const CustomDrawerContent = (props) => {
+  return (
+    <DrawerContentScrollView {...props}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8, backgroundColor: 'skyblue', justifyContent:"space-between" }}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <Image
+        source={require('../../../assets/sm.jpg')}
+        style={{ width: 50, height: 50, borderRadius: 25 }}
+      />
+      <View style={{ marginLeft: 16 }}>
+        <Text>Mukesh M...</Text>
+      </View>
+      </View>
+  <View>
+     <DotMenu/>
+     </View>
+     
+    </View>
+    <DrawerItemList {...props} />
+  </DrawerContentScrollView>
+  
+  );
+};
+
+
 const mydashboard = ({ navigation }) => {
   return (
-    <>
-    <StatusBar backgroundColor="gray"/>
-    <Drawer.Navigator>
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
     </Drawer.Navigator>
-    </>
   );
 };
 
