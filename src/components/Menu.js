@@ -1,34 +1,35 @@
+import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { Text } from 'react-native';
 import {
-    Menu,
-    MenuOption,
-    MenuOptions,
-    MenuProvider,
-    MenuTrigger,
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuProvider,
+  MenuTrigger,
 } from 'react-native-popup-menu';
 
 const DotMenu = () => {
+  const navigation = useNavigation(); 
+
   const handleEdit = () => {
-    // Add your edit logic here
-    console.log('Edit clicked');
+    navigation.navigate('userDetailPage');
   };
+
 
   const dotStyle = {
     fontSize: 20,
-    marginLeft:100,
+    marginLeft:50,
     lineHeight: 15,
   };
 
   return (
     <MenuProvider>
-      <Menu style={{ flexDirection: '' }}>
+      <Menu>
         <MenuTrigger>
-          <Text style={dotStyle}>•</Text>
-          <Text style={dotStyle}>•</Text>
-          <Text style={dotStyle}>•</Text>
+        <FontAwesome name="ellipsis-h" size={30} color="black" style={{ transform: [{ rotate: '90deg' }],...dotStyle }} />
         </MenuTrigger>
-        <MenuOptions>
+        <MenuOptions style={{}}>
           <MenuOption onSelect={handleEdit} text='Edit' />
         </MenuOptions>
       </Menu>

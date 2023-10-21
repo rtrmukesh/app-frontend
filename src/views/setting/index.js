@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const UserDetailPage = () => {
+const Setting = () => {
   return (
     <View>
-      <Text>UserDetailPage</Text>
+      <Text>Setting</Text>
     </View>
   )
 }
 
-export default UserDetailPage
+export default Setting
