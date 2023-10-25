@@ -1,83 +1,21 @@
-import { FontAwesome } from "@expo/vector-icons";
 import {
   DrawerContentScrollView,
   createDrawerNavigator
 } from "@react-navigation/drawer";
-import axios from "axios";
-import LottieView from "lottie-react-native";
-import React, { useEffect, useState } from "react";
-import { Image, StatusBar, Text, TouchableOpacity, View } from "react-native";
-import DotMenu from "../../components/Menu";
+import React from "react";
+import { Image, Text, View } from "react-native";
+import CustomDrawerItem from "../../components/CustomDrawerItem";
+import Dashboard from "./components/Dashboard";
 const Drawer = createDrawerNavigator();
-
-const DashboardScreen = () => {
-  const [weatherData, setWeatherData] = useState(null);
-
-  useEffect(() => {
-    const apiKey = "b349593e7cf077168b90cdf6a796f787";
-    const city = "Mayiladuthurai";
-
-    axios
-      .get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
-      )
-      .then((response) => {
-        console.log("Temperature in Celsius:", response.data.main.temp);
-        setWeatherData(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching weather data:", error);
-      });
-  }, []);
-  let animationFile = "animation_lnn10e95.json"; // Replace with the correct animation file
-
-  // if (weatherData && weatherData.main.temp <= 10) {
-  //   animationFile = "snowy-animation.json";
-  // } else if (weatherData && weatherData.main.temp > 10 && weatherData.main.temp <= 25) {
-  //   animationFile = "sunny-animation.json";
-  // } else if (weatherData && weatherData.main.temp > 25) {
-  //   animationFile = "rainy-animation.json";
-  // }
-  console.log("animationFile >>>----------------------------->", animationFile);
-  return (
-    <View>
-      <StatusBar backgroundColor="gray" />
-      <Text>Dashboard</Text>
-      {weatherData && (
-        <View>
-          <Text>Weather in {weatherData.name}:</Text>
-          <Text>Description: {weatherData.weather[0].description}</Text>
-          <Text>Temperature: {weatherData.main.temp}°C</Text>
-          <LottieView
-            source={require(`../../animation/${animationFile}`)} // Adjust the path to your animation files
-            autoPlay
-            loop
-          />
-        </View>
-      )}
-    </View>
-  );
-};
 
 
 const CustomDrawerContent = (props) => {
   const menuItems = [
     { name: "Dashboard", icon: "home" }, 
-    { name: "Setting", icon: "setting" }, 
+    { name: "Setting", icon: "cog-outline" }, 
   ];
 
-  const renderCustomItem = (item, index) => (
-    <TouchableOpacity
-      key={index}
-      onPress={() => props.navigation.navigate(item.name)}
-      style={{ flexDirection: "row", alignItems: "center", padding: 20 }}
-    >
-        <FontAwesome name={item.icon} size={25} color="black" />
-      <View style={{ marginLeft: 10 }}>
-      <Text>{item.name}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+
 
   return (
     <DrawerContentScrollView {...props}>
@@ -102,15 +40,15 @@ const CustomDrawerContent = (props) => {
           </View>
         </View>
       </View>
-      {menuItems.map((item, index) => renderCustomItem(item, index))}
+      <CustomDrawerItem menuItems={menuItems} navigation={props.navigation}/>
     </DrawerContentScrollView>
   );
 };
 
-const mydashboard = ({ navigation }) => {
+const mydashboard = (props) => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
-      <Drawer.Screen name="Dashboard" component={DashboardScreen} />
+      <Drawer.Screen name="Dashboard" component={Dashboard} />
     </Drawer.Navigator>
   );
 };
