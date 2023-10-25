@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-gesture-handler';
 import LoginPage from './src/views/loginPage';
 import mydashboard from "./src/views/dashboard/mydashboard";
+import Setting from "./src/views/setting";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         >
           <Stack.Screen name='Login' component={LoginPage} />
           <Stack.Screen name='mydashboard' component={mydashboard} />
+          <Stack.Screen name='Setting' component={Setting} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

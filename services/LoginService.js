@@ -4,7 +4,7 @@ class LoginService{
 
     static login(data,cb){
 
-        fetch("https://d157-106-51-74-137.ngrok-free.app/v1/user/loginByPassword", {
+        fetch("https://8a6b-106-51-74-137.ngrok-free.app/v1/user/loginByPassword", {
         method: 'POST',
         headers: {
             Accept: 'application/json',
