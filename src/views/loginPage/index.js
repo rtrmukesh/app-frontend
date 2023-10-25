@@ -34,28 +34,6 @@ const LoginPage=()=> {
       }
     });
 
-    // try {
-    //   const response = await apiClient.post("v1/user/loginByPassword", {
-    //     data
-    //   },
-    //   {
-    //     headers: {
-    //       'Content-Type': 'application/json', // Specify JSON content type
-    //     },
-    //   });
-    //   console.log('Response:', response);
-    // } catch (error) {
-    //   console.error('Error:', error.message);
-    // }
-
-    // fetch("https://730b-103-109-109-145.ngrok-free.app/v1/user/loginByPassword", {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     // Authorization: sessionToken,
-    //   },
-    //   body: data,
-    // })
   };
 
   return (
