@@ -6,12 +6,14 @@ import React from "react";
 import { Image, Text, View } from "react-native";
 import CustomDrawerItem from "../../components/CustomDrawerItem";
 import Dashboard from "./components/Dashboard";
+import CCTVPage from "../Cctv";
 const Drawer = createDrawerNavigator();
 
 
 const CustomDrawerContent = (props) => {
   const menuItems = [
     { name: "Dashboard", icon: "home" }, 
+    { name: "CCTV", icon: "cctv" }, 
     { name: "Setting", icon: "cog-outline" }, 
   ];
 
@@ -45,12 +47,13 @@ const CustomDrawerContent = (props) => {
   );
 };
 
-const mydashboard = (props) => {
+const Mydashboard = (props) => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Dashboard" component={Dashboard} />
+      <Drawer.Screen name="CCTV" component={CCTVPage} />
     </Drawer.Navigator>
   );
 };
 
-export default mydashboard;
+export default Mydashboard;
