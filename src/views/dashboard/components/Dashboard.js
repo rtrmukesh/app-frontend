@@ -31,14 +31,14 @@ function Dashboard(props) {
         <Text>Dashboard</Text>
         {weatherData && (
           <View>
-            <Text>Weather in {weatherData.name}:</Text>
-            <Text>Description: {weatherData.weather[0].description}</Text>
-            <Text>Temperature: {weatherData.main.temp}°C</Text>
-            <LottieView
+            {/* <Text>Weather in {weatherData.name}:</Text> */}
+            {/* <Text>Description: {weatherData.weather[0].description}</Text> */}
+            {/* <Text>Temperature: {weatherData.main.temp}°C</Text> */}
+            {/* <LottieView
             //   source={require(`../../animation/${animationFile}`)} // Adjust the path to your animation files
               autoPlay
               loop
-            />
+            /> */}
           </View>
         )}
       </View>
