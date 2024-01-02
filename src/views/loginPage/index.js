@@ -12,7 +12,7 @@ const LoginPage=()=> {
 
   useEffect(async ()=>{
     let session_id =  await AsyncStorageObject.getItem("session_token");
-    if(session_id){
+    if(!session_id){
       navigation.navigate("mydashboard")
     }else{
       navigation.navigate("Login")
