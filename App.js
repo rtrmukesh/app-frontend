@@ -6,6 +6,7 @@ import LoginPage from './src/views/loginPage';
 import Mydashboard from "./src/views/dashboard/mydashboard";
 import Setting from "./src/views/setting";
 import CCTVPage from "./src/views/Cctv";
+import CheckMobileNumber from "./src/views/checkMobBusyOrNot";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
           <Stack.Screen name='mydashboard' component={Mydashboard} />
           <Stack.Screen name='CCTV' component={CCTVPage} />
           <Stack.Screen name='Setting' component={Setting} />
+          <Stack.Screen name='CheckMobile' component={CheckMobileNumber} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
