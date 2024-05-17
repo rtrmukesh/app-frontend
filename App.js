@@ -7,6 +7,7 @@ import Mydashboard from "./src/views/dashboard/mydashboard";
 import Setting from "./src/views/setting";
 import CCTVPage from "./src/views/Cctv";
 import CheckMobileNumber from "./src/views/checkMobBusyOrNot";
+import ImageCarousel from "./src/views/imageCarousel";
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
           <Stack.Screen name='CCTV' component={CCTVPage} />
           <Stack.Screen name='Setting' component={Setting} />
           <Stack.Screen name='CheckMobile' component={CheckMobileNumber} />
+          <Stack.Screen name='ImageCarousel' component={ImageCarousel} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

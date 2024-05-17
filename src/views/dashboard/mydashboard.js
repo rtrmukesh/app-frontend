@@ -9,6 +9,7 @@ import Dashboard from "./components/Dashboard";
 import CCTVPage from "../Cctv";
 import CameraExample from "../samsungCameraIssue";
 import CheckMobileNumber from "../checkMobBusyOrNot";
+import ImageCarousel from "../imageCarousel";
 const Drawer = createDrawerNavigator();
 
 
@@ -19,6 +20,7 @@ const CustomDrawerContent = (props) => {
     { name: "Camera", icon: "Camera" }, 
     { name: "CheckMobile", icon: "phone" },
     { name: "Setting", icon: "cog-outline" }, 
+    { name: "ImageCarousel", icon: "cog-outline" }, 
   ];
 
 
@@ -58,6 +60,7 @@ const Mydashboard = (props) => {
       <Drawer.Screen name="CCTV" component={CCTVPage} />
       <Drawer.Screen name="Camera" component={CameraExample} />
       <Drawer.Screen name="CheckMobile" component={CheckMobileNumber} />
+      <Drawer.Screen name="ImageCarousel" component={ImageCarousel} />
     </Drawer.Navigator>
   );
 };
