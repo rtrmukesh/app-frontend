@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, ScrollView } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import Color from '../../lib/Color';
-import LinearGradient from "react-native-linear-gradient";
+import BgGradientColor from "../../MyComponents/BgGradientColor";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -38,42 +39,61 @@ const renderItem = ({ item, index }) => {
   );
 };
 
-const RenderImageCarousel = ({carouselData,backgroundColor}) => {
-  console.log('backgroundColor >>>----------------------------->',backgroundColor);
-  const [activeSlide1, setActiveSlide1] = React.useState(0);
-  const [activeSlide2, setActiveSlide2] = React.useState(0);
+const RenderImageCarousel = ({ carouselData }) => {
 
+  const layoutList = ['slider', 'stack', 'tinder', 'default'];
+
+  const getRandomLayout = () => {
+    const randomIndex = Math.floor(Math.random() * layoutList.length);
+    return layoutList[randomIndex];
+  };
+
+  // Selected layout
+  const selectedLayout = getRandomLayout();
   return (
-    <LinearGradient colors={[backgroundColor]} style={{borderRadius:8,height:400}}>
     <View style={[styles.container]}>
+      <View style={{
+        minWidth: "100%",
+        marginBottom: 10,
+      }}>
+        <LinearGradient
+          colors={['#8e9eab', '#eef2f3', '#eef2f3']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 2, y: 0 }}
+        >
+          <View style={[styles.titleContainer]}>
+            <Text style={styles.titleText}>Mukeshssssssssssss</Text>
+          </View>
+        </LinearGradient>
+      </View>
       <Carousel
         data={data}
         renderItem={renderItem}
         sliderWidth={screenWidth}
         itemWidth={screenWidth * 0.80}
-        layout={'default'}
-        onSnapToItem={(index) => index === 0 ? setActiveSlide1(index) : setActiveSlide2(index)}
+        layout={selectedLayout}
         layoutCardOffset={`18`}
+      // loop={true}
       />
     </View>
-    </LinearGradient>
   );
 };
 
 const ImageCarousel = () => {
 
-console.log('Color.getRandomGradientColor().backgroundColor >>>----------------------------->',Color.getRandomGradientColor().backgroundColor);
-  const loopData = [{ data: data,backgroundColor:"blue",backgroundColor:Color.getRandomGradientColor().backgroundColor }, { data: data,backgroundColor:Color.getRandomGradientColor().backgroundColor }];
+  const loopData = [{ data: data, backgroundColor: "blue" }, { data: data }];
 
 
   return (
-<ScrollView>
-    <View style={styles.mainContainer}>
-      {loopData.map((_, index) => (
-        
-        <RenderImageCarousel backgroundColor={_?.backgroundColor} />
-      ))}
-    </View>
+    <ScrollView>
+      <BgGradientColor numOfColors={loopData.length}>
+        <View style={styles.mainContainer}>
+          {loopData.map((_, index) => (
+
+            <RenderImageCarousel backgroundColor={_?.backgroundColor} />
+          ))}
+        </View>
+      </BgGradientColor>
     </ScrollView>
 
   )
@@ -85,13 +105,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 50
   },
   container: {
-    paddingTop: 50,
+    paddingTop: 20,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight:500
+    minHeight: 450,
+    paddingBottom: 0
   },
   slide: {
     backgroundColor: 'white',
@@ -101,7 +123,8 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '70%',
-    borderRadius: 8,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
   },
   title: {
     fontSize: 20,
@@ -114,18 +137,23 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: 'gray',
   },
-  paginationContainer: {
-    paddingVertical: 8,
+  titleContainer: {
+    backgroundColor: 'linear-gradient(to right, #8e9eab 0%, #eef2f3 51%, #8e9eab 100%)',
+    shadowColor: '#eee',
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 5,
+    marginLeft: 40
   },
-  activeDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-  },
-  inactiveDot: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  titleText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'left',
   },
 });
 
