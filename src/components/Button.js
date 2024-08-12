@@ -4,7 +4,7 @@ import { Color } from '../helper/Color';
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 
 const CustomButton = (props) => {
-  const { onPress, backgroundColor,borderRadius, textColor, width,title, errors,loading } = props;
+  const { onPress, backgroundColor,borderRadius, textColor, width,title, errors,loading, isDisabled,textAlign,fontSize, style } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const show = props.show !== undefined ? props.show : true;
@@ -33,7 +33,7 @@ const CustomButton = (props) => {
     await onPress();
     setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 4000);
   };
 
   return (
@@ -45,12 +45,15 @@ const CustomButton = (props) => {
         opacity: isLoading ? 0.7 : 1,
         borderRadius : borderRadius,
         width : width,
+        ...style
       }}
       labelStyle={{
         color: textColor ? textColor : Color.BUTTON_TEXT,
+        fontSize: fontSize?fontSize:14,
+        textAlign: textAlign?textAlign:"center",
       }}
       onPress={handlePress}
-      disabled={isLoading}
+      disabled={isDisabled?isDisabled:isLoading}
       loading={isLoading}
     >
       {title}

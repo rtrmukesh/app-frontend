@@ -10,7 +10,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AlternativeColor from "../components/AlternativeBackground";
 
 
-const ListUI = ({ List , selectProperty, onPress}) => {
+const ListUI = ({ List , selectProperty, onPress, showSelectedRow, selectedRowProperty, rowCompareValue}) => {
 
     return (
         <>
@@ -27,8 +27,8 @@ const ListUI = ({ List , selectProperty, onPress}) => {
                                         <View style={{ flexDirection: "row", justifyContent: "flex-start", flex: 2, alignItems: "center" }}>
                                             <Text style={{ fontSize: 16, flex: 0.9, marginTop: 5 }}>{item[selectProperty]}</Text>
                                             <View style={{ flex: 0.1, alignItems: "flex-end" }}>
-
-                                                <MaterialIcons name="chevron-right" size={30} color="gray" />
+                                               {showSelectedRow && selectedRowProperty && rowCompareValue && item[selectedRowProperty] == rowCompareValue ? <MaterialIcons name="check" size={30} color="green" />:
+                                                <MaterialIcons name="chevron-right" size={30} color="gray" />}
                                             </View>
                                         </View>
                                     </View>

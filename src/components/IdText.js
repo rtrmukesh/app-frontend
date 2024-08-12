@@ -6,7 +6,7 @@ const IdText = (props) => {
 
     return (
 
-        <Text style={{color:Color.GREY}}>
+        <Text style={{color:Color.GREY,fontWeight: "bold"}}>
             {`#${id} `} 
         </Text>
     )

@@ -15,6 +15,7 @@ import { verticalScale } from '../Metrics'
 import DateTime from "../../lib/DateTime";
 
 import BarCodeScanSound from "../../components/BarCodeScanSound";
+import { Camera, AutoFocus, WhiteBalance } from "expo-camera";
 
 const BarcodeScanner = (props) => {
 
@@ -65,9 +66,14 @@ const BarcodeScanner = (props) => {
 		<View style={styles.container}>
 
 			{hasPermission &&
-				<BarCodeScanner
-					onBarCodeScanned={handleBarCodeScanned}
+				<Camera
 					style={{ height: height ? height : verticalScale(500), width: width ? width : verticalScale(620) }}
+					type={Camera.Constants.Type.back}
+					onBarCodeScanned={handleBarCodeScanned}
+					autoFocus={AutoFocus.on}
+					focusDepth={1}
+					whiteBalance={WhiteBalance.auto}
+					barCodeScannerSettings={{ interval : 1000 }}
 				/>
 			}
 		</View>

@@ -9,6 +9,7 @@ import MediaList from "./MediaList";
 import { useForm } from "react-hook-form";
 import Alert from "../components/Modal/Alert";
 import MediaVisible from "../helper/MediaVisible";
+import { BackHandler } from "react-native";
 
 
 
@@ -26,6 +27,18 @@ const MediaUpload = (props) => {
         getMediaList();
     }, [])
 
+    useEffect(() => {
+      
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          () => {
+            return true;
+          }
+        );
+        return () => backHandler.remove();
+   
+    }, []);
+
     const {
         control,
         handleSubmit,
@@ -33,8 +46,11 @@ const MediaUpload = (props) => {
     } = useForm({
     });
     const getMediaList = async () => {
+        if(params.id){
         await mediaService.search(params.id, params.object, callback => setMediaData(callback.data.data))
     }
+}
+
 
     const hideMenu = () => setVisible(false);
     const showMenu = (e) => {
@@ -142,7 +158,7 @@ const MediaUpload = (props) => {
             title="Paytm Video"
             buttonOnPress={(e) =>takePicture(e) }
             buttonLabel={"Upload"}
-            backButtonNavigationUrl={"SalesSettlement"}
+            showBackIcon={false}
             FooterContent={(<DoneButton
                 onPress={() => {
                     image ?  navigation.navigate("SalesSettlement") : Alert.Error("Paytm Video is required");

@@ -1,48 +1,47 @@
-import axios from "axios";
-import LottieView from "lottie-react-native";
-import React, { useEffect, useState } from 'react'
-import { StatusBar, Text, View } from "react-native";
+// components/Dashboard.js
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+// import AddressCard from './AddressCard';
 
-function Dashboard(props) {
-    const [weatherData, setWeatherData] = useState(null);
-
-    useEffect(() => {
-      const apiKey = "b349593e7cf077168b90cdf6a796f787";
-      const city = "Mayiladuthurai";
-  
-      axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
-        )
-        .then((response) => {
-          console.log("Temperature in Celsius:", response.data.main.temp);
-          setWeatherData(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching weather data:", error);
-        });
-    }, []);
-    let animationFile = "animation_lnn10e95.json"; // Replace with the correct animation file
-  
-    console.log("animationFile >>>----------------------------->", animationFile);
-    return (
-      <View>
-        <StatusBar backgroundColor="gray" />
-        <Text>Dashboard</Text>
-        {weatherData && (
-          <View>
-            {/* <Text>Weather in {weatherData.name}:</Text> */}
-            {/* <Text>Description: {weatherData.weather[0].description}</Text> */}
-            {/* <Text>Temperature: {weatherData.main.temp}°C</Text> */}
-            {/* <LottieView
-            //   source={require(`../../animation/${animationFile}`)} // Adjust the path to your animation files
-              autoPlay
-              loop
-            /> */}
-          </View>
-        )}
+const Dashboard = () => {
+  return (
+    <View style={styles.container}>
+      <Text style={[styles.hello,styles.text]}>Hello! <Text style={[styles.name,styles.text]}>Suganthi Mukesh</Text></Text>
+      <View style={{marginTop:13}}>
+      {/* <AddressCard/> */}
       </View>
-    );
-}
+    </View>
+  );
+};
 
-export default Dashboard
+const styles = StyleSheet.create({
+  childran:{
+paddingTop:5
+  },
+  normalText:{
+    fontSize:12,
+    color:"blue"
+  },
+  boldText:{
+fontWeight:"bold",
+color:"red",
+fontSize:15
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    padding:11
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  hello:{
+    color:"red"
+  },
+  name:{
+    color:"#003366"
+  }
+});
+
+export default Dashboard;

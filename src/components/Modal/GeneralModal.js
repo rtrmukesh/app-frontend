@@ -13,9 +13,10 @@ import RadioButton from '../RadioButton';
 import Currency from '../Currency';
 import { useForm } from "react-hook-form";
 import {PaymentType} from "../../helper/PaymentType";
+import MediaUploadCard from '../MediaUploadCard';
 
 
-function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handlePaymentChange, button1Press, content, content2, button1Label, button2Label,disable, label,title, selectedPayment }) {
+function GeneralModal({ toggle,MediaData, modalVisible, dateAndTime, button2Press, handlePaymentChange, button1Press, content, content2, button1Label, button2Label,disable, label,title, selectedPayment,takePicture,handleDelete, showDelete }) {
 
     const {
         control,
@@ -34,7 +35,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
         },
         modalContainer: {
             width: "80%",
-            height: selectedPayment === PaymentType.MIXED_VALUE ? verticalScale(500) : verticalScale(450),
+            height: selectedPayment === PaymentType.MIXED_VALUE ? verticalScale(750) : verticalScale(600),
             borderRadius: 5,
             backgroundColor: "#f9fafb",
         },
@@ -90,6 +91,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
         },
     });
 
+
     return (
         <Modal
             transparent={true}
@@ -144,6 +146,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
                                         />
                                         </View>
                                         </View>
+
                                         <RadioButton
                                             label="Both"
                                             value="both"
@@ -152,7 +155,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
                                         />
                                         {selectedPayment === 3 && (
                                             <View style={{ flex: 1, flexDirection: "row" }}>
-                                                <View style={{ width: '49%', flex: 0.48 }}>
+                                                <View style={{ width: '49%', flex: 0.5 }}>
                                                     <Currency
                                                         title={'Cash'}
                                                         name={'cash'}
@@ -162,7 +165,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
                                                         required
                                                     />
                                                 </View>
-                                                <View style={{ width: '49%', flex: 0.48, paddingLeft:10 }}>
+                                                <View style={{ width: '49%', flex: 0.5, paddingLeft:10 }}>
                                                     <Currency
                                                         title={'Paytm'}
                                                         name={'upi'}
@@ -174,6 +177,7 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
                                                 </View>
                                             </View>
                                         )}
+                                       
                                         {selectedPayment ===PaymentType.INITIAL &&(
                                           
                                                 <Text style={{ color: "red"}}>Select Payment Method</Text>
@@ -181,8 +185,32 @@ function GeneralModal({ toggle, modalVisible, dateAndTime, button2Press, handleP
                                         
                                     </View>
                                 )}
+                                         {(selectedPayment === PaymentType.UPI_VALUE || selectedPayment === PaymentType.MIXED_VALUE) && (
+                  <>
+                  <Text style={{ color: "black", fontWeight: "bold", paddingBottom: 5, paddingTop:15,flexDirection: "row", alignItems: "center" }}>
+                  Photos{MediaData && MediaData.length > 0 && (
+  <>
+     ({MediaData.length}):
+  </>
+)}{" "}
+  {MediaData && MediaData.length > 0 &&
+      <Text onPress={takePicture} style={{color:"blue",fontWeight:"bold", fontSize:14 }}>+ Add</Text>
+  }
+</Text>
+                    <MediaUploadCard
+                      mediaData={MediaData}
+                      size={40}
+                      isOrder
+                      onUploadIconPress={takePicture}
+                      showDelete={showDelete}
+                      onPressDelete={handleDelete}
+                    />
+                  </>
+                )}
 
+                                
                             </View>
+                            
                         </View>
                     </View>
                     <View style={styles.divider} />

@@ -11,7 +11,7 @@ const ProjectUserSelect = ({ selectedUserId, label,projectId, onChange, required
     const isFocused = useIsFocused();
     useEffect(() => {
         getUserList();
-    }, [projectId]);
+    }, [isFocused,projectId]);
     const getUserList = async() => {
         await userService.getProjectUserList({projectId : projectId}, (response) => {
             setUserList(response);

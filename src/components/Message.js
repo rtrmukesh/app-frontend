@@ -40,7 +40,7 @@ const Message = (props) => {
         <FontAwesome5
           name="envelope"
           size={30}
-          color={menuItemValue === "Messages" ? Color.BLUE : Color.TOOL_BAR}
+          color={ Color.MESSAGE_TEXT }
         />
         {!totalCount == 0 ? (
           <View style={styles.totalCounts}>

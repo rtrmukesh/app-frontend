@@ -45,15 +45,18 @@ import * as Device from 'expo-device';
 import SyncService from "../../services/SyncService";
 import platform from "../../lib/Platform";
 import styles from "../../helper/Styles";
+import * as Location from 'expo-location';
+import UserLocationService from "../../services/UserLocation";
 
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 const Layout = ({
   children,
@@ -96,8 +99,15 @@ const Layout = ({
   name,
   showStatusDropDown,
   data,
-  currentStatusId
-
+  currentStatusId,
+  filteredValue,
+  onActionMenuPress,
+  showActionDrawer,
+  backButtonNavigationOnPress,
+  showLogo,
+  showProfile,
+  onProfileHandle,
+  hideContentPadding
 }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -117,23 +127,25 @@ const Layout = ({
   const responseListener = useRef();
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    // registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
+    // notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    //   setNotification(notification);
+    // });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
+    // responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    //   console.log(response);
+    // });
     settingService.get(Setting.MESSAGE_BACKGROUND_FETCH_INTERVAL, async (error, response) => {
       if (response && response?.settings && response.settings[0].value) {
         let interval = parseInt(response.settings[0].value);
         BackGroundFetch(MessageSound, interval);
-        BackGroundFetch(syncProduct, interval);
+        BackGroundFetch(UpdateUserLocation,interval)
       }
     })
+
     getSessionToken();
+
     const NoInternet = NetInfo.addEventListener(handleConnectivityChange);
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -156,9 +168,18 @@ const Layout = ({
     };
   }, []);
 
-  const syncProduct = async () => {
-    SyncService.forceSync();
-  }
+
+  const UpdateUserLocation = async () => {
+
+    let location = await Location.getCurrentPositionAsync({});
+
+    let data = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude
+    }
+
+    UserLocationService.create(data, (err, result) => { })
+}
 
 
   useEffect(() => {
@@ -177,6 +198,10 @@ const Layout = ({
 
     return false;
   };
+
+  const getSessionToken = async () => {
+    await isLoggedIn(navigation)
+  }
 
   async function registerForPushNotificationsAsync() {
     let token;
@@ -205,10 +230,6 @@ const Layout = ({
     }
 
     return token;
-  }
-
-  const getSessionToken = async () => {
-    await isLoggedIn(navigation)
   }
 
   const handleConnectivityChange = (state) => {
@@ -297,16 +318,25 @@ const Layout = ({
               buttonLabel2={buttonLabel2}
               button2OnPress={button2OnPress}
               onFilterPress={onFilterPress}
+              onActionMenuPress={onActionMenuPress}
+              showActionDrawer={showActionDrawer}
+              backButtonNavigationOnPress={backButtonNavigationOnPress}
+              showLogo={showLogo}
+              showProfile={showProfile}
+              onProfileHandle={onProfileHandle}
             />
 
             <View>
               {filter}
             </View>
+            <View>
+              {filteredValue}
+            </View>
 
             {isLoading && !refreshing ? (
               <Spinner />
             ) : (
-              <View style={{ flex: 0.9, paddingHorizontal: 10 }}>
+              <View style={{ flex: 0.9, paddingHorizontal: !hideContentPadding ? 10 : 0 }}>
                 {children}
               </View>
             )}
@@ -318,14 +348,6 @@ const Layout = ({
                 </View>
               )
             }
-
-            {
-              bottomToolBar && (
-                <BottomToolBar
-                  updateMenuState={updateMenuState}
-                  setSideMenuOpen={setSideMenuOpen}
-                />
-              )}
           </SafeAreaView>
         </KeyboardAvoidingView>
       )}

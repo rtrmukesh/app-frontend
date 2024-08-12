@@ -7,8 +7,11 @@ import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import Label from './Label';
 import CustomDivider from './Divider';
+import Number from "../lib/Number";
+import { Color } from '../helper/Color';
 
-const Select = ({ name, options, label, placeholder, divider, OnSelect, getDetails, data, disableSearch, showBorder, required, paddingVertical, control, disable, showImage, userCard, position }) => {
+const Select = (props) => {
+  let { name, options, label, placeholder,placeholderTextColor, divider, OnSelect, getDetails, data, disableSearch, showBorder, required, paddingVertical, control, disable, showImage, userCard, position } = props;
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const borderShow = showBorder === undefined ? true : showBorder
@@ -98,19 +101,19 @@ const Select = ({ name, options, label, placeholder, divider, OnSelect, getDetai
           <View
             style={[
               styles.container,
-              { borderColor: error ? 'red' : 'gray', borderWidth: borderShow ? 1 : 0, borderRadius: 8 },
+              { borderColor: error ? 'red' : 'gray', borderWidth: disable ? 0 : borderShow ? 1 : 0, borderRadius: 8 },
             ]}>
             {/* {renderLabel()} */}
             <Dropdown
               disable={disable }
               style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-              placeholderStyle={styles.placeholderStyle}
+              placeholderStyle={[styles.placeholderStyle, { color: placeholderTextColor ? placeholderTextColor : Color.PLACEHOLDER_TEXT }]}
               selectedTextStyle={styles.selectedTextStyle}
               inputSearchStyle={styles.inputSearchStyle}
               iconStyle={styles.iconStyle}
               data={dropdownItem}
               renderRightIcon={() => (data || value ?
-                <TouchableOpacity onPress={(e) => {
+                !disable && <TouchableOpacity onPress={(e) => {
                   onChange("");
                   setValue("");
                   setIsFocus(false);
@@ -129,13 +132,13 @@ const Select = ({ name, options, label, placeholder, divider, OnSelect, getDetai
               placeholder={!isFocus ? placeholder : '...'}
               searchPlaceholder="Search..."
               renderItem={item => _renderItem(item)}
-              value={value || data}
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => setIsFocus(false)}
+              value={isFocus ? value : (value || Number.Get(data) || data)}             
+              onFocus={() => { setIsFocus(true), props.setIsFocus && props.setIsFocus(true)}}
+              onBlur={() => { setIsFocus(false), props.setIsFocus && props.setIsFocus(false)}}
               onChange={item => {
                 onChange(item);
                 setValue(item.value);
-                setIsFocus(false);
+                setIsFocus(false), props.setIsFocus && props.setIsFocus(false)
                 OnSelect ? OnSelect(item.value) : "";
                 getDetails ? getDetails(item) : "";
               }}

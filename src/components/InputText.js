@@ -7,7 +7,7 @@ const InputText = (props) => {
         value,
         values,
         onBlur,
-        editable,
+        editable=true,
         placeholder,
         title,
         secureTextEntry,
@@ -32,7 +32,7 @@ const InputText = (props) => {
         <View
             style={[
                 containerStyle ? containerStyle : Sheet.container,
-                { borderColor: error && 'red', borderWidth: currency ? 0 : borderShow ? 1 : 0 },
+                { borderColor: error && 'red', borderWidth: currency ? 0 : !editable ? 0: borderShow ? 1 : 0 },
             ]}>
             <TextInput
                 value={value || values}

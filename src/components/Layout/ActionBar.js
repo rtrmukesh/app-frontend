@@ -4,20 +4,23 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image
 } from "react-native";
 import { Color } from "../../helper/Color";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { Ionicons, Feather } from "@expo/vector-icons";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Menu } from 'react-native-material-menu';
 import DropDownMenu from '../DropDownMenu';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Message from '../Message';
 import Button from '../Button';
-import settingService from '../../services/SettingService';
 import Setting from '../../lib/Setting';
 import styles from '../../helper/Styles';
 import StatusSelect from '../StatusSelect';
+import asyncStorageService from '../../services/AsyncStorageService';
+import settingService from '../../services/SettingService';
+import { FontAwesome5 } from "@expo/vector-icons";
 
 
 const ActionBar = ({
@@ -48,6 +51,12 @@ const ActionBar = ({
   currentStatusId,
   name,
   showStatusDropDown,
+  onActionMenuPress,
+  showActionDrawer,
+  backButtonNavigationOnPress,
+  showLogo,
+  showProfile,
+  onProfileHandle
 }) => {
 
   const navigation = useNavigation();
@@ -55,55 +64,45 @@ const ActionBar = ({
   const [addVisible, setAddVisible] = useState(false);
   const [portalName, setPortalName] = useState("");
   const [themeColor, setThemeColor] = useState(Color.WHITE);
-  const [textColor,setTextColor] = useState(Color.WHITE)
+  const [textColor, setTextColor] = useState(Color.WHITE)
+
+  const isFocused = useIsFocused();
 
   const hideAddMenu = () => setAddVisible(false);
-
   const showAddMenu = () => {
     setAddVisible(true)
   };
 
   useEffect(() => {
-    getPortalName();
     getThemeColor();
-    getTextColor();
-  }, [])
-  const showButton = showActionButton !== undefined ? showActionButton : true;
+  }, [isFocused])
+  const showButton = showActionButton !== undefined ? showActionButton : true;   
 
-  const getPortalName = async () => {
-    await settingService.get(Setting.PORTAL_NAME, (err, response) => {
-      if (response && response.settings && response.settings[0].value) {
-        setPortalName(response.settings[0].value)
-      }
-
-    })
-
-
-  }
+ 
   const getThemeColor = async () => {
-    await settingService.get(Setting.PORTAL_HEADER_COLOR, async (err, response) => {
-      if (response && response.settings && response.settings[0].value) {
-        setThemeColor(response.settings[0].value)
-        setStatusBar(response.settings[0].value)
+    try {
+          await settingService.getByName(Setting.PORTAL_HEADER_COLOR,(err,response)=>{
+            setThemeColor(response)
+            setStatusBar(response)
+          })
+          await settingService.getByName(Setting.PORTAL_HEADER_TEXT_COLOR,(err,response)=>{
+            setTextColor(response)
+          })
+          await settingService.getByName(Setting.PORTAL_NAME,(err,response)=>{
+            setPortalName(response)
+          })
+        
+    } catch (error) {
+        console.error("Error retrieving settings:", error);
+        return null;
+    }
+};
 
-      }
 
-    })
-  }
-  const getTextColor = async () => {
-    await settingService.get(Setting.PORTAL_HEADER_TEXT_COLOR, (err, response) => {
-      if (response && response.settings && response.settings[0].value) {
-        setTextColor(response.settings[0].value)
-      }
-
-    })
-
-
-  }
   return (
     <>
       <View style={{
-        flex: isKeyboardVisible ? 0.17 : 0.1,
+        flex: isKeyboardVisible ? 0.14 : 0.1,
         justifyContent: "center",
         backgroundColor: themeColor,
       }}>
@@ -116,14 +115,15 @@ const ActionBar = ({
             backgroundColor: themeColor,
           }}
         >
-          <View style={{ flex: showStatusDropDown ? 0.12 : 0.1, paddingTop: showStatusDropDown && 10 }}>
-            {showBackIcon && (
+          <View style={{ flex: (showStatusDropDown || buttonLabel2) ? 0.12 : 0.1, paddingTop: showStatusDropDown && 10 }}>
+            {showBackIcon !== false && (
               <TouchableOpacity
                 onPress={() => {
                   if (updateValue) {
                     updateValue();
                   } else {
                     backButtonNavigationUrl ? navigation.navigate(backButtonNavigationUrl, params) : navigation.goBack();
+                    backButtonNavigationOnPress && backButtonNavigationOnPress()
                   }
 
                 }}
@@ -132,20 +132,28 @@ const ActionBar = ({
                 <Ionicons
                   name="chevron-back"
                   size={35}
-                  color={Color.INDIGO}
+                  color={Color.ACTIONBAR_TEXT}
                 />
               </TouchableOpacity>
 
             )}
+
+            {showLogo && (
+              <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+                <Image source={require('../../assets/PortalLogo.png')} style={{ height: 30, width: 150 }} />
+              </View>
+            )}
+
           </View>
           {title && (
-            <View style={{ flex: showStatusDropDown ? 0.40 : 0.60, alignItems: showStatusDropDown && 'center', paddingTop: showStatusDropDown && 12 }}>
-              <Text style={[styles.layoutTitle, { color: textColor }]} numberOfLines={1}>{title}</Text>
+            <View style={{ flex: showStatusDropDown ? 0.40 : buttonLabel ? 0.60 : 1, alignItems: showStatusDropDown && 'center', paddingTop: showStatusDropDown && 12 ,marginLeft : buttonLabel ? 0 : 5}}>
+              <Text style={[styles.layoutTitle, { color: Color.ACTIONBAR_TEXT, textTransform: "capitalize" }]} numberOfLines={1}>{title}</Text>
             </View>
           )}
+
           {ZunoMart && (
             <View style={{ flex: 0.60, paddingBottom: 1 }}>
-              <Text style={[styles.portal ,{color: textColor} ]}>
+              <Text style={[styles.portal, { color: Color.ACTIONBAR_TEXT }]}>
                 {portalName}
               </Text>
             </View>
@@ -155,44 +163,62 @@ const ActionBar = ({
 
             {showScanner && (
               <View style={!buttonLabel ? { paddingRight: 25 } : {}}>
-                <Icon name="barcode"
-                  size={26}
-                  color={Color.BLACK}
-                  onPress={() => openScanner && openScanner()}
-
-                />
+                 <FontAwesome5 name={"barcode"} size={26} color={Color.ACTIONBAR_TEXT} onPress={() => openScanner && openScanner()}/>
+               
               </View>
             )}
           </View>
 
           {showButton && buttonLabel && (
             <View style={[{ flex: showActionMenu ? 0.4 : 0.3 }, styles.layoutButton]}>
-              <Button title={buttonLabel} onPress={(e) => onPress(e)} backgroundColor={Color.SECONDARY_BUTTON} />
+              <Button title={buttonLabel} onPress={(e) => onPress(e)} backgroundColor={Color.ACTIONBAR_TEXT} />
             </View>
           )}
           {buttonLabel2 && (
-            <View style={[{ flex: showActionMenu ? 0.4 : 0.3 }, styles.layoutButton]}>
-              <Button title={buttonLabel2} onPress={button2OnPress} color={Color.SECONDARY_BUTTON} />
+            <View style={[styles.layoutButton]}>
+              <Button title={buttonLabel2} onPress={button2OnPress} color={Color.ACTIONBAR_TEXT} />
             </View>
           )}
 
-         
 
           {showFilter && (
             <View style={styles.layoutFilter}>
               <Ionicons
-                name="ios-filter-outline"
+                name="filter-outline"
                 size={35}
-                color={Color.INDIGO}
+                color={Color.ACTIONBAR_TEXT}
                 onPress={() => onFilterPress()}
               />
             </View>
           )}
-           {showActionMenu && (
 
-           <DropDownMenu MenuItems={actionItems} onPress={closeModal} />
+          {showProfile && (
+            <View style={styles.layoutFilter}>
+              <Feather
+                name="user"
+                size={30}
+                color={Color.INDIGO}
+                onPress={() => onProfileHandle()}
+              />
+            </View>
+          )}
 
-           )}
+          {showActionMenu && !showActionDrawer && (
+
+            <DropDownMenu MenuItems={actionItems} onPress={()=>closeModal()} />
+
+          )}
+          {!showActionMenu && showActionDrawer && (
+
+            <TouchableOpacity onPress={onActionMenuPress}>
+              <Ionicons
+                name={"ellipsis-vertical"}
+                size={24}
+                color={Color.ACTIONBAR_TEXT}
+                style={{ paddingRight: 15, paddingTop: 5 }}
+              />
+            </TouchableOpacity>
+          )}
 
           {Add && <Menu
             visible={addVisible}
@@ -214,7 +240,7 @@ const ActionBar = ({
             <Message />
           )
           }
-         
+
           {showStatusDropDown && (
             <View style={{ width: '35%', height: '10%' }}>
               <StatusSelect

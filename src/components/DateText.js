@@ -1,13 +1,14 @@
 import React from "react";
 import {StyleSheet, Text} from 'react-native';
 import { Color } from "../helper/Color";
+import DateTime from "../lib/DateTime";
 const DateText=(props)=>{
-    const { date } = props
+    const { date,style,dateFormat } = props
 
     return (
 
-    <Text style={[styles.date]}>
-        {date}
+    <Text style={style ? style : styles.date}>
+        {dateFormat ? DateTime.formatDate(date) : date}
   </Text>
     )
 }

@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { Controller } from 'react-hook-form';
 import ErrorMessage from './error';
 import Required from './Required';
+import { formatMobileNumber } from '../lib/Format';
 
 const PhoneNumber = ({
     control,
@@ -11,27 +12,12 @@ const PhoneNumber = ({
     currency,
     required,
     title,
-    editable,
+    editable = true,
     values,
+    onInputChange,
+    maxLength
 }) => {
-    const formatPhoneNumber = (value) => {
-        // Remove all non-digit characters from the input value
-        const formattedValue = value.replace(/\D/g, '');
 
-        // Format the phone number in (XXX) XXX-XXXX format
-        let formattedPhoneNumber = '';
-        if (formattedValue.length > 0) {
-            formattedPhoneNumber = '(' + formattedValue.slice(0, 3);
-        }
-        if (formattedValue.length > 3) {
-            formattedPhoneNumber += ') ' + formattedValue.slice(3, 6);
-        }
-        if (formattedValue.length > 6) {
-            formattedPhoneNumber += '-' + formattedValue.slice(6, 10);
-        }
-
-        return formattedPhoneNumber;
-    };
 
     return (
         <>
@@ -43,7 +29,7 @@ const PhoneNumber = ({
                     required: required ? `Enter ${title}` : false,
                     pattern: {
                         value: /^\(\d{3}\) \d{3}-\d{4}$/,
-                        message: 'Invalid Phone Number',
+                        message: `Invalid ${title}`,
                     },
                   }}
                 render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
@@ -53,17 +39,18 @@ const PhoneNumber = ({
                         <View
                             style={[
                                 styles.container,
-                                { borderColor: error ? 'red' : 'gray', borderWidth: currency ? 0 : 1 },
+                                { borderColor: 'gray', borderWidth: currency ? 0 : !editable ? 0: 1 },
                             ]}
                         >
                             <TextInput
-                                value={value || values}
+                                value={(value || values) && formatMobileNumber(value || values)}
                                 onBlur={onBlur}
-                                editable={editable || !values && true}
+                                maxLength={maxLength}
+                                editable={editable}
                                 placeholder={placeholder || title}
                                 style={styles.input}
                                 onChangeText={(e) => {
-                                    onChange(formatPhoneNumber(e));
+                                    onChange(onInputChange && onInputChange(e) || formatMobileNumber(e));
                                 }}
                                 underlineColorAndroid="transparent"
                                 keyboardType="phone-pad"

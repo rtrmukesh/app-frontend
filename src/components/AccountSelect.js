@@ -7,11 +7,11 @@ import accountService from "../services/AccountService";
 
 
 const AccountSelect = (props) => {
-    const { data, label, onChange, required, placeholder, showBorder,disable, control,name } = props
+    const { data, label, onChange, required,divider, placeholder, showBorder,disable, control,name, options } = props
     const [vendorList, setVendorList] = useState();
+    const [isFocus, setIsFocus] = useState(false)
     const isFocused = useIsFocused();
-
-
+    
     useEffect(() => {
         let mount = true;
 
@@ -27,9 +27,9 @@ const AccountSelect = (props) => {
     return (
         <Select
             label={label}
-            options={vendorList}
+            options={isFocus ? vendorList : options ? options :vendorList}
             control={control}
-            divider
+            divider = {divider}
             data={data}
             name={name}
             showBorder={showBorder}
@@ -37,6 +37,7 @@ const AccountSelect = (props) => {
             placeholder={placeholder}
              disable={disable}
             required={required}
+            setIsFocus={setIsFocus}
 
         />
     )

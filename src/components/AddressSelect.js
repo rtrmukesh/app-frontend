@@ -3,6 +3,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useForm } from "react-hook-form";
 import addressServices from "../services/AddressService";
 import Select from "./Select";
+import ObjectName from "../helper/ObjectName";
 
 
 
@@ -15,7 +16,7 @@ const AddressSelect = (props) => {
     useEffect(() => {
         let mount = true;
 
-        mount && addressServices.search({}, callback => { setAddressList(callback); })
+        mount && addressServices.search({objectName : ObjectName.COMPANY}, callback => { setAddressList(callback); })
 
         //cleanup function
         return () => {

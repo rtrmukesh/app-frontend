@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Color } from "../helper/Color";
 import Spinner from "../components/Spinner";
+import { Text } from "react-native";
 
 
 const FileUpload = (props) => {
@@ -20,7 +21,9 @@ const FileUpload = (props) => {
     onImageCapture,
     delay = 500,
     showTakePhotoButton,
-    isImageLoading
+    isImageLoading,
+    showDelete,
+    deleteImage,
   } = props;
 
   let timeoutId;
@@ -59,6 +62,7 @@ const FileUpload = (props) => {
     clearTimeout(timeoutId);
   };
 
+
   return (
     <View
       style={{
@@ -78,13 +82,19 @@ const FileUpload = (props) => {
                 />
               ) : (
                 <View style={styles.container}>
-                  <TouchableWithoutFeedback
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                  >
-                    <Image source={{ uri: image ? image : prefillImage }} style={styles.image} />
-                  </TouchableWithoutFeedback>
+                  
+                  <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+                  <View style={styles.container}>
+                 {showDelete && (
+                   <TouchableOpacity onPress = {()=>deleteImage()} style={styles.deleteIcon}> 
+                    <Ionicons name="trash" size={24} color="red"  />
+                   </TouchableOpacity>
+                  )}
+                  <Image source={{ uri: image ? image : prefillImage }} style={styles.image} />
+                  </View>
+                 </TouchableWithoutFeedback>
                 </View>
+                
               )}
             </>
           ) : (
@@ -114,7 +124,7 @@ const FileUpload = (props) => {
                 >
                   <View style={{ marginTop: 20 }}>
                     <Ionicons
-                      name="md-camera-outline"
+                      name="camera-outline"
                       size={customCameraIconWith ? customCameraIconWith : 100}
                       borderRadius={5}
                       color="white"
@@ -145,6 +155,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 1, // Adjust the distance from the top as needed
     right: 1, // Adjust the distance from the right as needed
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
   },
 });
 

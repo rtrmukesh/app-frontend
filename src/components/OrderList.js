@@ -1,39 +1,47 @@
 // Import React and Component
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-    Keyboard,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
-import { Color } from "../helper/Color";
-import SearchBar from "./SearchBar";
-import AsyncStorageConstants from "../helper/AsyncStorage";
-import AsyncStorage from "../lib/AsyncStorage";
-import { useIsFocused } from "@react-navigation/native";
-import Layout from "../components/Layout";
-import OrderCard from "../views/order/components/OrderCard";
-import { SwipeListView } from "react-native-swipe-list-view";
-import OrderService from "../services/OrderService";
-import Permission from "../helper/Permission";
-import { useForm } from "react-hook-form";
 import { MenuItem } from "react-native-material-menu";
+import { SwipeListView } from "react-native-swipe-list-view";
 import DropDownMenu from "../components/DropDownMenu";
+import Layout from "../components/Layout";
 import DeleteConfirmationModal from "../components/Modal/DeleteConfirmationModal";
 import NoRecordFound from "../components/NoRecordFound";
 import Refresh from "../components/Refresh";
 import ShowMore from "../components/ShowMore";
-import { default as DateTime, default as dateTime } from "../lib/DateTime";
-import FilterDrawer from "../views/order/Filter";
+import Tab from "../components/Tab";
+import AsyncStorageConstants from "../helper/AsyncStorage";
+import { Color } from "../helper/Color";
+import Number from "../helper/Number";
+import ObjectName from "../helper/ObjectName";
 import Order from "../helper/Order";
+import Permission from "../helper/Permission";
+import Status from "../helper/Status";
+import TabName from "../helper/Tab";
+import AsyncStorage from "../lib/AsyncStorage";
+import { default as DateTime } from "../lib/DateTime";
+import OrderService from "../services/OrderService";
+import shiftService from "../services/ShiftService";
+import StatusService from "../services/StatusServices";
+import storeService from "../services/StoreService";
+import userService from "../services/UserService";
+import OrderCard from "../views/order/components/OrderCard";
+import FilterDrawer from "./Filter";
+import PermissionService from "../services/PermissionService";
+import CurrencyFormat from "../lib/Currency";
+import Numbers from "../lib/Number";
+import Date from "../helper/Date";
 
 const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [searchPhrase, setSearchPhrase] = useState("");
-    const [search, setSearch] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
     const [page, setPage] = useState(2);
@@ -42,54 +50,117 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
     const [selectedItem, setSelectedItem] = useState("");
     const [manageOther, setManageOther] = useState(false);
     const [orderTotal, setOrderTotal] = useState(false);
-    const [todayList, setTodayList] = useState("");
+    const [todayList, setTodayList] = useState([]);
     const [visible, setVisible] = useState(false);
-    const [searchParam, setSearchParam] = useState("");
     const [openFilter, setOpenFilter] = useState(false);
-    const [values, setValues] = useState({
-        startDate: new Date(),
-        endDate: new Date(),
-    });
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedEndDate, setSelectedEndDate] = useState(new Date());
-
+    const [values, setValues] = useState({        
+            startDate: "",
+            endDate:"",
+        });
+    const [selectedDate, setSelectedDate] = useState(DateTime.Today());
+    const [selectedEndDate, setSelectedEndDate] = useState(DateTime.Today());
+    const [statusList, setStatusList] = useState();
+    const [userList, setUserList] = useState();
+    const [locationList, setLocationList] = useState();
+    const [shiftList, setShiftList] = useState();
+    const [activeTab, setActiveTab] = useState(TabName.TODAY);
+    const [count, setCount] = useState(0);
+    const[permission,setPermission] = useState(false)
+    const[totalCash,setTotalCash] = useState("")
+    const[totalUpi,setTotalUpi] = useState("")
+    const[totalDraftAmount,setTotalDraftAmount] = useState("")
+    const [search, setSearch] = useState("");
     const stateRef = useRef();
     const isFocused = useIsFocused();
-
     const navigation = useNavigation();
-
-    // render the stock entry list function
     useEffect(() => {
         if (isFocused) {
-            let mount = true;
-            mount && getAllList(values);
+            const storedFilterValues =  values;
+            if (Object.keys(storedFilterValues).length > 0) {
+                setValues(storedFilterValues);
+            }
+            if(activeTab === TabName.TODAY){
+            getAllList(storedFilterValues, Date.TODAY);
+            }else{
+            getAllList(storedFilterValues);
 
-            //cleanup function
-            return () => {
-                mount = false;
-            };
+            }
         }
-    }, [isFocused, navigation]);
+    }, [isFocused,refreshing, values,activeTab]);
+
+
 
     useEffect(() => {
-        getAllList(values);
-    }, []);
+        getStatusList();
+        getUserList();
+        getStoreList();
+        getShiftList();
+    }, [isFocused]);
+
     useEffect(() => {
         let mount = true;
-
-        //get permission
         mount && getPermission();
-        return () => {
-            mount = false;
-        };
-    }, [isFocused]);
-    useEffect(() => {
-        let mount = true;
         mount && getTotalPermission();
+        //get permission
         return () => {
             mount = false;
         };
     }, [isFocused]);
+
+
+
+    const getStatusList = async () => {
+        let status = [];
+        const response = await StatusService.list(ObjectName.ORDER);
+
+        response && response.forEach((statusList) => {
+            status.push({
+                label: statusList.name,
+                value: statusList.status_id,
+                id: statusList.status_id
+            });
+        });
+
+        setStatusList(status);
+    }
+    const getUserList = () => {
+        userService.list(null, (callback) => { setUserList(callback) });
+
+    }
+    const getStoreList = () => {
+        storeService.list({},(error, response) => {
+            const storeListOption = new Array();
+            let storeList = response?.data?.data;
+            if (storeList && storeList.length > 0) {
+                for (let i = 0; i < storeList.length; i++) {
+                    storeListOption.push({
+                        label: storeList[i].name,
+                        value: storeList[i].id,
+                    });
+                }
+
+                setLocationList(storeListOption);
+            }
+
+        });
+    }
+
+    const getShiftList = () => {
+        let shiftListOption = new Array();
+
+        shiftService.getShiftList({ showAllowedShift: true }, (error, response) => {
+            let shiftList = response?.data?.data;
+            if (shiftList && shiftList.length > 0) {
+                for (let i = 0; i < shiftList.length; i++) {
+                    shiftListOption.push({
+                        label: shiftList[i].name,
+                        value: shiftList[i].id,
+                    });
+                }
+                setShiftList(shiftListOption);
+            }
+        })
+    }
 
     const getPermission = async () => {
         //get permission list
@@ -114,6 +185,12 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
                 setManageOther(manageOther);
             }
         }
+        const addOrder = await PermissionService.hasPermission(Permission.ORDER_ADD);
+
+        const manageOthers = await PermissionService.hasPermission(Permission.ORDER_MANAGE_OTHERS);
+
+        setPermission({ orderAdd: addOrder, manageOthers: manageOthers})
+
     };
     const getTotalPermission = async () => {
         let permissionList = await AsyncStorage.getItem(
@@ -138,21 +215,29 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
 
 
 
-    const getAllList = async (values) => {
+    const getAllList = async (values, orderDate) => {
         try {
-            setSearchPhrase("");
-            setClicked(false);
-            Keyboard.dismiss();
-            setPage(2);
-            setHasMore("0");
-            searchPhrase == "" && setSearch(false);
-            searchPhrase == "" && !refreshing && setIsLoading(true);
+            
+            let param
 
-            let param = { type: type, sort: "createdAt", sortDir: "DESC" };
+            param = { type: type, sort: "createdAt", sortDir: "DESC", };
+
+            if (activeTab === TabName.ALL) {
+                if (values?.startDate) {
+                    param.startDate = DateTime.formatDate(values?.startDate);
+                }
+                if (values?.endDate) {
+                    param.endDate = DateTime.formatDate(values?.endDate);
+                }
+            }
+
+
             if (values?.status) {
                 param.status = values?.status;
             }
-
+            
+                param.search = search;
+           
 
             if (values?.user) {
                 param.user = values?.user;
@@ -163,56 +248,35 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
             if (values?.shift) {
                 param.shift = values?.shift;
             }
+             
+                if(orderDate){
+               param.orderDate = orderDate
+               param.showTotalAmount= true
+        
+            }
             if (values?.paymentType) {
                 param.paymentType = values?.paymentType;
             }
-            if (values?.startDate) {
-                param.startDate = DateTime.formatDate(values?.startDate);
-            }
-            if (values?.endDate) {
-                param.endDate = DateTime.formatDate(values?.endDate);
-            }
+            setIsLoading(true);
 
             OrderService.searchOrder(param, (error, response) => {
                 let orders = response && response?.data && response?.data?.data;
                 setTodayList(orders);
                 setIsLoading(false);
-                setVisible(false);
+                setTotalCash( response.data.totalCash)
+                setTotalUpi( response.data.totalUpi)
+                setTotalDraftAmount( response.data.totalDraftAmount)
+                if (activeTab === TabName.TODAY) {
+                setCount( response &&response.data && response.data.totalCount>0?response.data.totalCount:0)
+                }
             });
 
-            let params = { page: 1, sort: "createdAt", sortDir: "DESC", type: type };
-            if (values?.status) {
-                params.status = values?.status;
-            }
-            if (values?.user) {
-                params.user = values?.user;
-            }
-            if (values?.location) {
-                params.location = values?.location;
-            }
-            if (values?.shift) {
-                params.shift = values?.shift;
-            }
-            if (values?.paymentType) {
-                params.paymentType = values?.paymentType;
-            }
-            if (values?.startDate) {
-                params.startDate = DateTime.formatDate(values?.startDate);
-            }
-            if (values?.endDate) {
-                params.endDate = DateTime.formatDate(values?.endDate);
-            }
+           
 
-            OrderService.searchOrder(params, (error, response) => {
-                let orders = response && response?.data && response?.data?.data;
 
-                // Set response in state
-                setTodayList(orders);
-                setIsLoading(false);
-            });
         } catch (err) {
             console.log(err);
-            setIsLoading(false);
+
         }
     };
 
@@ -244,6 +308,7 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
         clearRowDetail();
     };
 
+
     const renderHiddenItem = (data, rowMap) => {
         return (
             <>
@@ -252,6 +317,7 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
                         label="More"
                         color={Color.WHITE}
                         icon="ellipsis-horizontal"
+                        menuStyle = {{position: 'absolute'}}
                         MenuItems={[
                             <MenuItem
                                 onPress={() => {
@@ -287,37 +353,41 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
             <View style={styles.container}>
                 {item.type === Order.DELIVERY_TEXT ? (
                     <OrderCard
-                        order_number={item.order_number}
+                        order_number={item.order_number !== null ? item.order_number : ""}
                         date={item.date}
-                        locationName={item.locationName}
-                        status={item.DeliveryStatusDetail?.name}
-                        statusColor={item?.DeliveryStatusDetail?.color_code}
+                        customerName={item.customerName}
+                        status={item.statusDetail?.name}
+                        statusColor={item?.statusDetail?.color_code}
+                        firstName = {item?.delivery_executive_firstName}
+                        lastName = {item?.delivery_executive_lastName}
+                        mediaUrl = {item?.delivery_executive_media_url}
                         payment_type={item.payment_type}
                         total_amount={item.total_amount}
-                        shift={item.shift}
                         index={index}
                         onPress={() => onPress && onPress(item)}
+                        data={item}
                     />
-                ) :  <OrderCard
-                order_number={item.order_number}
-                date={item.date}
-                locationName={item.locationName}
-                status={item.status}
-                statusColor={item?.statusDetail?.color_code}
-                payment_type={item.payment_type}
-                total_amount={item.total_amount}
-                shift={item.shift}
-                index={index}
-                onPress={() => onPress && onPress(item)}
-            />}
+                ) : <OrderCard
+                    order_number={item.order_number !== null ? item.order_number : ""}
+                    date={item.date}
+                    locationName={item.locationName}
+                    status={item.status}
+                    statusColor={item?.statusDetail?.color_code}
+                    payment_type={item.payment_type}
+                    total_amount={item.total_amount}
+                    shift={item.shift}
+                    index={index}
+                    onPress={() => onPress && onPress(item)}
+                    data={item}
+                />}
 
             </View>
         );
     };
-    const handleSubmit = async () => {
-        getAllList(values);
-        closeDrawer();
-    };
+  const handleSubmit = async () => {
+    getAllList({...values, search:search});
+    closeDrawer();
+};
     const statusOnSelect = (value) => {
         if (value) {
             setValues((prevValues) => ({
@@ -335,7 +405,7 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
         if (value) {
             setValues((prevValues) => ({
                 ...prevValues,
-                user: value,
+                user: value.value,
             }));
         } else {
             setValues((prevValues) => ({
@@ -389,9 +459,9 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
         if (value) {
             setValues((prevValues) => ({
                 ...prevValues,
-                startDate: new Date(value),
+                startDate: DateTime.Today(value),
             }));
-            setSelectedDate(new Date(value));
+            setSelectedDate(DateTime.Today(value));
         } else {
             setValues((prevValues) => ({
                 ...prevValues,
@@ -404,9 +474,9 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
         if (value) {
             setValues((prevValues) => ({
                 ...prevValues,
-                endDate: new Date(value),
+                endDate: DateTime.Today(value),
             }));
-            setSelectedEndDate(new Date(value));
+            setSelectedEndDate(DateTime.Today(value));
         } else {
             setValues((prevValues) => ({
                 ...prevValues,
@@ -424,11 +494,13 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
 
             params = {
                 page: page,
-                search: searchParam ? searchParam : "",
+                search: search?search : "",
                 sort: "createdAt",
                 sortDir: "DESC",
                 type: type
             };
+            
+           
             if (values?.status) {
                 params.status = values?.status;
             }
@@ -445,11 +517,17 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
             if (values?.paymentType) {
                 params.paymentType = values?.paymentType;
             }
+            if(activeTab === TabName.ALL){
             if (values?.startDate) {
                 params.startDate = DateTime.formatDate(values?.startDate);
             }
             if (values?.endDate) {
                 params.endDate = DateTime.formatDate(values?.endDate);
+            }
+          }
+            if(activeTab === TabName.TODAY){
+                params.orderDate =  Date.TODAY
+                params.showTotalAmount= true
             }
             OrderService.searchOrder(params, (error, response) => {
                 let orders = response?.data?.data;
@@ -460,6 +538,7 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
                 });
                 setPage((prevPageNumber) => prevPageNumber + 1);
                 setHasMore(orders.length > 0);
+
                 setIsFetching(false);
             });
         } catch (err) {
@@ -476,116 +555,167 @@ const OrderList = ({ title, type, AddNew, onPress, showFilter }) => {
     const OrderDelete = async () => {
         if (selectedItem) {
             OrderService.DeleteOrder(selectedItem.id, (error, response) => {
-                getAllList();
+                getAllList({...values,search: search})
             });
         }
     };
-    const handleChange = async (search) => {
-        setSearchParam(search);
-        //Api Call
-        OrderService.searchOrder(
-            {
-                search: search ? search : "",
-                startDate: dateTime.formatDate(new Date()),
-                endDate: dateTime.toISOEndTimeAndDate(new Date()),
-                type: type
-            },
-            (error, response) => {
-                let list = response.data.data;
-                setTodayList(list);
-                if (searchPhrase.length == 0) {
-                    getAllList;
-                }
-            }
-        );
+    const handleChange = async (value) => {
+        setSearch(value);
     };
-
     return (
-        <Layout
-            title={title}
-            buttonLabel={"New"}
-            buttonOnPress={AddNew}
-            isLoading={isLoading}
-            refreshing={refreshing}
-            showFilter={showFilter}
-            onFilterPress={closeDrawer}
-            bottomToolBar={true}
-            FooterContent={orderTotal && todayList && todayList.length > 0}
-        >
-            <FilterDrawer
-                values={values}
-                isOpen={openFilter}
-                closeDrawer={closeDrawer}
-                paymentOnSelect={paymentOnSelect}
-                shiftOnSelect={shiftOnSelect}
-                locationOnSelect={locationOnSelect}
-                statusOnSelect={statusOnSelect}
-                userOnSelect={userOnSelect}
-                onDateSelect={onDateSelect}
-                onEndDateSelect={onEndDateSelect}
-                selectedEndDate={selectedEndDate}
-                selectedDate={selectedDate}
-                handleSubmit={handleSubmit}
-                clearFilter={() => {
-                    setValues("");
-                    getAllList();
-                    closeDrawer();
-                }}
-                applyFilter={(value) => applyFilter(value)}
+        <>
+      <Layout
+        title={title}
+        buttonLabel={permission && permission.orderAdd ? "New" : ""}
+        buttonOnPress={permission && permission.orderAdd ? AddNew : ""}
+        refreshing={refreshing}
+        showFilter={showFilter}
+        onFilterPress={closeDrawer}
+        showBackIcon={false}
+        FooterContent={orderTotal && todayList && todayList.length > 0}
+        closeModal={visible}
+      >
+        <View>
+            <Tab
+              title={[
+                
+                {
+                  title: `${TabName.TODAY} (${
+                    count !== Number.UNDEFINED && 
+                     
+                    count
+                  })`,
+                  tabName: TabName.TODAY,
+                },
+                {
+                    title: `${TabName.ALL}`,
+                    tabName: TabName.ALL,
+                  },
+                
+              ]}
+              setActiveTab={setActiveTab}
+              defaultTab={activeTab}
             />
+          </View>
 
-            <Refresh refreshing={refreshing} setRefreshing={setRefreshing}>
-                <DeleteConfirmationModal
-                    modalVisible={OrderDeleteModalOpen}
-                    toggle={orderDeleteModalToggle}
-                    item={selectedItem}
-                    updateAction={OrderDelete}
+        <FilterDrawer
+          values={values}
+          isOpen={openFilter}
+          ObjectName={ObjectName.ORDER}
+          closeDrawer={closeDrawer}
+          paymentOnSelect={paymentOnSelect}
+          shiftOnSelect={shiftOnSelect}
+          locationOnSelect={locationOnSelect}
+          statusOnSelect={statusOnSelect}
+          userOnSelect={userOnSelect}
+          onDateSelect={onDateSelect}
+          onEndDateSelect={onEndDateSelect}
+          selectedEndDate={selectedEndDate}
+          selectedDate={selectedDate}
+          statusList={statusList}
+          userList={userList}
+          locationList={locationList}
+          shiftList={shiftList}
+          showLocation
+          showStatus
+          showUser={permission && permission.manageOthers}
+          showPayment
+          showShift
+          showDate
+          showSearch
+          handleSubmit={handleSubmit}
+          clearFilter={() => {
+            setValues("");
+            getAllList();
+            closeDrawer();
+          }}
+          applyFilter={(value) => applyFilter(value)}
+          handleSearchChange={handleChange}
+          searchParam={search}
+          handleClearSearch={() => {
+           setSearch("")
+          }}
+        />
+      
+          <DeleteConfirmationModal
+            modalVisible={OrderDeleteModalOpen}
+            toggle={orderDeleteModalToggle}
+            item={selectedItem}
+            updateAction={OrderDelete}
+          />
+
+          <>
+        
+
+           <Refresh refreshing={refreshing} isLoading={isLoading} setRefreshing={setRefreshing}>
+
+                {todayList && todayList.length > 0 ? (
+                  <>
+                    <SwipeListView
+                      data={todayList}
+                      renderItem={renderItem}
+                      renderHiddenItem={renderHiddenItem}
+                      rightOpenValue={-140}
+                      previewOpenValue={-40}
+                      previewOpenDelay={3000}
+                      disableRightSwipe={true}
+                      disableLeftSwipe={manageOther ? false : true}
+                      closeOnRowOpen={true}
+                      keyExtractor={(item) => String(item.id)}
+                    />
+                  </>
+                ) : (
+                  <NoRecordFound iconName="receipt" />
+                )}
+                <ShowMore
+                  List={todayList}
+                  isFetching={isFetching}
+                  HasMore={HasMore}
+                  onPress={TodayLoadMoreList}
                 />
-
-                <>
-                    <View style={styles.searchBar}>
-                        <SearchBar
-                            searchPhrase={searchPhrase}
-                            setSearchPhrase={setSearchPhrase}
-                            setClicked={setClicked}
-                            clicked={clicked}
-                            setSearch={setSearch}
-                            onPress={getAllList}
-                            handleChange={handleChange}
-                            noScanner
-                        />
-                    </View>
-
-                    <View>
-                        {todayList && todayList.length > 0 ? (
-                            <>
-                                <SwipeListView
-                                    data={todayList}
-                                    renderItem={renderItem}
-                                    renderHiddenItem={renderHiddenItem}
-                                    rightOpenValue={-140}
-                                    previewOpenValue={-40}
-                                    previewOpenDelay={3000}
-                                    disableRightSwipe={true}
-                                    disableLeftSwipe={manageOther ? false : true}
-                                    closeOnRowOpen={true}
-                                    keyExtractor={(item) => String(item.id)}
-                                />
-                            </>
-                        ) : (
-                            <NoRecordFound iconName="receipt" />
-                        )}
-
-                        <ShowMore
-                            List={todayList}
-                            isFetching={isFetching}
-                            HasMore={HasMore}
-                            onPress={TodayLoadMoreList}
-                        />
-                    </View>
-                </>
             </Refresh>
-        </Layout>
+          </>
+      </Layout>
+      {activeTab == TabName.TODAY && type !== Order.DELIVERY && todayList && todayList.length > 0 && 
+      <View style={{ flex: 0.1, backgroundColor:Color.BLACK }}>
+        <View style={{  flexDirection:"row", alignItems:"center",padding:3 }}>
+           <View style={styles.totalAmount}>
+           <View style={styles.align}>
+             <Text style={styles.letterText}>
+                Cash:&nbsp;&nbsp;
+               <Text style={styles.letterColor}>
+                 {
+                   CurrencyFormat.getFormatted(
+                       Numbers.Get(totalCash), true
+                     )}
+               </Text>
+             </Text>
+           </View>
+         </View>
+           <View style={styles.align}>
+             <Text style={styles.letterText}>
+             PayTM:&nbsp;&nbsp;
+               <Text style={styles.letterColor}>
+                 {CurrencyFormat.getFormatted(
+                   Numbers.Get(totalUpi), true
+                 )}
+               </Text>
+             </Text>
+           </View>
+         </View>
+         <View style={styles.align}>
+             <Text style={styles.letterText}>
+             Draft:&nbsp;&nbsp;
+               <Text style={styles.letterColor}>
+                 {CurrencyFormat.getFormatted(
+                   Numbers.Get(totalDraftAmount), true
+                 )}
+               </Text>
+             </Text>
+         </View>
+         </View>
+}
+         </>
     );
 };
 
@@ -667,4 +797,36 @@ const styles = StyleSheet.create({
     btnText: {
         color: Color.WHITE,
     },
+    totalAmount: {
+        flex: 1,
+        flexDirection: "row",
+      },
+      align: {
+        flex: 1,
+        alignItems: 'center'
+      },
+      letterText: {
+        fontWeight: "bold",
+        fontSize: 19,
+        color: "white",
+
+      },
+      letterColor: {
+        color: "white",
+      },
+      searchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+      },
+      searchBarContainer: {
+        width: '70%',
+      },
+      cancelButton: {
+        width: '30%',
+        alignItems: 'center',
+        paddingTop: 5,
+        paddingBottom: 4,
+      },
 });

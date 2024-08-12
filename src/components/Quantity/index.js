@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, TextInput } from 'react-native';
 import styles from './style';
-import { Button } from 'react-native-paper';
 import { Formik } from 'formik';
 import { Color } from '../../helper/Color';
+import { Button } from 'react-native-paper';
 
 const RnIncrementDecrementBtn = ({
   val,
@@ -95,7 +95,7 @@ const RnIncrementDecrementBtn = ({
         <Button
           labelStyle={labelStyle ? labelStyle : styles.labelStyle}
           disabled={rightBtnDisable || disableControl}
-          color={'#ffffff'}
+          textColor={Color.WHITE}
           onPress={() => {
             // changeDisable(true);
             if (value - 1 <= min || value - 1 < minReq) {
@@ -159,7 +159,7 @@ const RnIncrementDecrementBtn = ({
         <Button
           labelStyle={labelStyle ? labelStyle : styles.labelStyle}
           disabled={leftBtnDisable || disableControl}
-          color={'#ffffff'}
+          textColor={Color.WHITE}
           onPress={() => {
             if (count - 1 <= 0) {
               changeCount(0);
