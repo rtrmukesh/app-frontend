@@ -1,9 +1,9 @@
 import { Alert } from "react-native";
 class AlertMessage {
-    async Error(Message, onDismiss) {
+    async Error(Message, onDismiss, buttonLabel,titleLabel) {
        
         let buttonObject = {
-            text: 'OK'
+            text: buttonLabel ? buttonLabel : 'OK'
         }
 
         if (onDismiss) {
@@ -11,7 +11,7 @@ class AlertMessage {
         }
         
         Alert.alert(
-            "Error",
+            titleLabel ? titleLabel : "Error",
             Message,
             [
                 buttonObject,

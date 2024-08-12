@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Platform, StyleSheet, TextInput, View } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -23,8 +23,10 @@ const DatePicker = ({ selectedTime, onTimeSelect, format, placeholder, disabled,
     };
 
     return (
+        <>
+        <Label text={title} bold={true} />
+
         <View style={styleSheet.MainContainer}>
-            <Label text={title} bold={true} />
             <TextInput
                 editable={disabled}
                 showSoftInputOnFocus={false}
@@ -47,6 +49,7 @@ const DatePicker = ({ selectedTime, onTimeSelect, format, placeholder, disabled,
             )}
 
         </View>
+        </>
     );
 }
 
@@ -58,6 +61,7 @@ const styleSheet = StyleSheet.create({
         flex: 1,
         // alignItems: 'center',
         backgroundColor: 'white',
+        marginTop : 3
     },
 
     text: {

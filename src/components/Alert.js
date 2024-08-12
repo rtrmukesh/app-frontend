@@ -2,10 +2,10 @@
 
 import { Alert } from "react-native";
 
-const AlertModal = (type, message) =>
+const AlertModal = ( message,title) =>
 
     Alert.alert(
-        type == "Success" ? "Success Message" : "Error Message",
+        title ? title : "Error",
         message,
         [
             {

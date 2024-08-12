@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { StyleSheet, TextInput, View, Keyboard } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
+import Label from "../Label";
 
 const SearchBar = ({
 	handleChange,
@@ -15,14 +16,23 @@ const SearchBar = ({
 	openScanner,
 	noScanner,
 	focus,
-	onEndEditing
+	onEndEditing,
+	toggle,
+  customStyle,
+  label
 }) => {
 	const inputRef = useRef();
 	return (
-		<View style={styles.container}>
+    <View>
+    {label&&
+    <View style={{ flexDirection: 'row'}}>
+       <Label text={label} bold={true} />
+       </View>
+}
+		<View style={customStyle?styles.filterContainer:styles.container}>
 			<View
 				style={
-					clicked ? styles.searchBar__clicked : styles.searchBar__unclicked
+					customStyle?styles.filterStyle:clicked ? styles.searchBar__clicked : styles.searchBar__unclicked
 				}
 			>
 				{/* search Icon */}
@@ -36,6 +46,7 @@ const SearchBar = ({
 							setClicked && setClicked(false);
 							Keyboard.dismiss();
 							setSearch && setSearch(false);
+							toggle && toggle(false);
 						}}
 					/>
 				) : (
@@ -49,7 +60,7 @@ const SearchBar = ({
 
 				{/* Input field */}
 				<TextInput
-					style={styles.input}
+					style={customStyle?styles.filterInput: styles.input}
 					ref={focus && (inputRef)}
 					onLayout={focus && (() => inputRef.current.focus())}
 					placeholder="Search"
@@ -94,6 +105,7 @@ const SearchBar = ({
 				)}
 			</View>
 		</View>
+    </View>
 	);
 };
 export default SearchBar;
@@ -129,5 +141,25 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		marginLeft: 10,
 		width: "85%",
+	},
+  filterStyle: {
+    borderColor: 'gray', borderWidth: 1 , borderRadius: 8,padding: 10,
+    flexDirection: "row",
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+	},
+  filterInput: {
+		fontSize: 18,
+		marginLeft: 10,
+		width: "90%",
+	},
+  filterContainer: {
+		marginVertical: 5,
+		justifyContent: "flex-start",
+		alignItems: "center",
+		flexDirection: "row",
+		width: "100%",
 	},
 });

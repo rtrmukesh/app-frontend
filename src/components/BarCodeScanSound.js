@@ -12,6 +12,11 @@ const BarCodeScanSound = async () => {
         try {
             const desiredVolume = 1;
             await SystemSetting.setVolume(desiredVolume, { type: 'music' });
+            await SystemSetting.setVolume(desiredVolume, { type: 'ring' });
+            await SystemSetting.setVolume(desiredVolume, { type: 'notification' });
+
+
+
         } catch (error) {
             console.error('Error setting media volume:', error);
         }

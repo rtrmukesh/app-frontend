@@ -22,7 +22,7 @@ const SearchView = (props) => {
             <ProductCard
               item={item}
               image={item.image ? item.image : item.featured_media_url}
-              name={item.product_name}
+              name={item.product_name ? item.product_name : item.product_display_name}
               sale_price={item.sale_price}
               mrp={item.mrp}
               size={item.size}

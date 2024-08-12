@@ -9,11 +9,12 @@ const ToolBarItem =(props)=>{
     const {icon,selected,label,onPress} = props 
 
     return(
-           <TouchableOpacity onPress={onPress} style={styles.margin}>
+           <TouchableOpacity onPress={onPress} style={{marginRight:42}}>
                     <View style={styles.marginAlign}>
                         <FontAwesome5
                             name={icon}
-                             size={24}
+                             size={28}
+                             style={{paddingVertical:8}}
                             color={selected ? Color.BLUE : Color.TOOL_BAR}
                         />
                         <Text style={styles.iconName}>{label}</Text>

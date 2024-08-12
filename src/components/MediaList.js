@@ -5,6 +5,7 @@ import DeleteModal from "../components/Modal/DeleteConfirmationModal";
 import { Color } from "../helper/Color";
 import mediaService from "../services/MediaService";
 import MediaCard from "../views/Purchase/components/MediaCard";
+import Spinner from "./Spinner";
 
 const Media = (props) => {
     const { mediaData, getMediaList } = props;
@@ -42,7 +43,9 @@ const Media = (props) => {
         clearRowDetail();
     }
   
-
+if(props?.isLoading){
+    return <Spinner/>
+}
 
     return (
 

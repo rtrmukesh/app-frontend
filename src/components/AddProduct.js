@@ -119,14 +119,7 @@ function ProductAdd({ toggle, modalVisible, image, content, setImage, setFile, b
                             }>
                                 <Text style={{ color: Color.PRIMARY_TEXT, fontSize: 15, fontWeight: "700" }}>{button1Label}</Text>
                             </TouchableOpacity>
-                            {button2Label && (
-                                <TouchableOpacity style={{ flex: 1, backgroundColor: Color.SECONDARY_BUTTON, alignItems: 'center', justifyContent: 'center' }} onPress={() => {
-                                    toggle && toggle();
-                                    button2Press && button2Press();
-                                }} >
-                                    <Text style={{ color: Color.PRIMARY_TEXT, fontSize: 15, fontWeight: "700" }}>{button2Label}</Text>
-                                </TouchableOpacity>
-                            )}
+                            
                         </View>
 
                     </View>

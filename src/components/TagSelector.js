@@ -24,7 +24,8 @@ const TagSelector = (props) => {
                 tagList.push({
                     label : list[i].name,
                     value:list[i].id,
-                    id:list[i].id
+                    id:list[i].id,
+                    default_amount : list[i].default_amount
                 })
             }
             }

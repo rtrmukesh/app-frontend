@@ -6,14 +6,15 @@ import styles from "../helper/Styles";
 
 
 const TransferField = (props)=>{
-    const {label,onPress} = props
+    const {label,onPress,disabled} = props
     return(
         <TouchableOpacity onPress= { onPress} style={styles.containers}>
         <View style={styles.transferView}>
             <Text style={styles.transferText}>{label}</Text>
+
             <View style={styles.view}>
 
-                <MaterialIcons name="chevron-right" size={30} color="gray" />
+              {disabled && <MaterialIcons name="chevron-right" size={30} color="gray" /> }
             </View>
         </View>
     </TouchableOpacity>

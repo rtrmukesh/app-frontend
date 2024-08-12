@@ -18,6 +18,10 @@ import Order from "../helper/Order";
 import StatusService from "../services/StatusServices";
 import DateTime from "../lib/DateTime";
 import Status from "../helper/Status";
+import IdText from "./IdText";
+import style from "../helper/Styles";
+import StoreText from "./StoreText";
+import CurrencyText from "./CurrencyText";
 
 
 const ProductCard = (props) => {
@@ -40,7 +44,15 @@ const ProductCard = (props) => {
     statusUpdate,
     alternative,
     pack_size,
-    date
+    date,
+    orderDate,
+    orderProduct,
+    orderNumber,
+    locationName,
+    amountField,
+    amount,
+    ownerName,
+    onLongPress
   } = props;
 
   const [productStatus, setProductStatus] = useState([])
@@ -60,47 +72,60 @@ const ProductCard = (props) => {
   return (
     <TouchableOpacity
       style={[
-        alternative ? alternative : styles.card,
+        alternative ? alternative : style.ProductCard,
         !noIcon && { elevation: 5 },
         QuantityField && search ? { paddingHorizontal: 20 } : "",
       ]}
+      onLongPress={onLongPress}
       disabled={disabled}
       activeOpacity={QuantityField ? 1 : 0.4}
       onPress={() => onPress && onPress(item)}
     >
-      <View style={{ paddingRight: 20, flex: 0.15 }}>
+      <View style={style.imageCardAlign}>
         <ImageCard ImageUrl={image} />
       </View>
       <View
         style={[
-          styles.container,
+          style.productContainer,
           QuantityField ? { flex: 0.65 } : { flex: 0.85 },
         ]}
       >
+        <View style={style.direction}>
+
+          {orderNumber && (
+            <IdText id={orderNumber} />
+
+          )}
+          {orderDate && (
+            <Text>{(orderDate)}</Text>
+          )}
+        </View>
+        {locationName && (
+          <StoreText locationName={locationName} />
+        )}
         {brand ? <Text style={{ fontWeight: "700" }}>{brand}</Text> : ""}
-        <View style={{ flexDirection: "row" }}>
-          <Text style={[styles.cartText]}>
+        <View style={style.direction}>
+          <Text style={[style.productCardText]}>
             {name}
             {size ? ", " + size : ""}
             {unit}
             {pack_size
-                      ? `(Pack Size: ${
-                          pack_size
-                            ? pack_size
-                            : " "
-                        })`
-                      : ""}
+              ? `(Pack Size: ${pack_size
+                ? pack_size
+                : " "
+              })`
+              : ""}
           </Text>
         </View>
-        <View style={{ flexDirection: "row" }}>
+        <View style={style.direction}>
           {sale_price ? (
             mrp != sale_price && mrp > 0 ? (
-              <View style={{ flexDirection: "row" }}>
-                <Text style={{ textDecorationLine: "line-through" }}>
+              <View style={style.direction}>
+                <Text style={style.lineAlign}>
                   {Currency.IndianFormat(mrp)}
                 </Text>
                 {mrp > 0 && mrp != sale_price ? (
-                  <Text style={{ paddingLeft: 10, fontWeight: 'bold' }}>
+                  <Text style={style.amountAlign}>
                     {Currency.IndianFormat(sale_price)}
                   </Text>
                 ) : (
@@ -113,17 +138,25 @@ const ProductCard = (props) => {
           ) : (
             <Text>{Currency.IndianFormat(mrp)}</Text>
           )}
-          {status && (
-            <Text style={{ color: status === Order.STATUS_CANCEL || status === Status.ARCHIVED ? Color.RED : Color.SECONDARY }}>{` (${status})`}</Text>
-          )}
-         
 
-        </View>
-        {date && (
-            <Text>{DateTime.formatedDate(date)}</Text>
+
+          {status && (
+            <Text style={{ color: status === Order.STATUS_CANCEL || status === Status.ARCHIVED ||status === Status.INACTIVE_TEXT ? Color.RED : Color.SECONDARY }}>
+              {` (${status})`}
+            </Text>
           )}
+        </View>
+
+        {ownerName && (
+          <Text>{ownerName}</Text>
+        )}
+
+        {date && (
+          <Text>{DateTime.formatedDate(date)}</Text>
+        )}
+
         {productStatus && productStatus.length > 0 && statusUpdate && (
-          <View style={styles.buttonContainer}>
+          <View style={style.buttonContainer}>
             {productStatus.map((status, index) => {
               return (
                 <View key={status.id} style={{ width: productStatus.length == 1 ? '100%' : productStatus.length == 2 ? '50%' : '50%', marginRight: index !== productStatus.length - 1 ? 1 : 0 }}>
@@ -140,12 +173,10 @@ const ProductCard = (props) => {
 
 
       </View>
-     
-
-      {QuantityField ? (
+      {!amount && QuantityField ? (
         <>
-          <View style={{ justifyContent: "center", flex: 0.25, alignItems: "flex-end" }}>
-            <Text style={{ fontWeight: "500", fontSize: 16, color: "gray" }}>
+          <View style={style.quantityAlign}>
+            <Text style={orderProduct ? style.quantity_order_product : style.quantity}>
               {quantity}
             </Text>
           </View>
@@ -154,6 +185,20 @@ const ProductCard = (props) => {
       ) : (
         !noIcon && <MaterialIcons name="chevron-right" size={30} color="gray" />
       )}
+      {amountField && QuantityField && amount && (
+        <>
+         <View style={style.quantityAlign}>
+         <Text style={style.quantity_order_product}>{Currency.getFormatted(Currency.GetWithNoDecimal(amount))} </Text>
+
+            <Text style={style.quantity}>
+              ({quantity})
+            </Text>
+          </View>
+
+        </>
+      ) }
+
+
 
     </TouchableOpacity>
   );
@@ -161,35 +206,4 @@ const ProductCard = (props) => {
 
 export default ProductCard;
 
-const styles = StyleSheet.create({
-  card: {
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    flex: 1,
-  },
-  cartText: {
-    fontSize: 16,
-    textTransform: "capitalize",
-  },
 
-  quantityBox: {
-    flex: 0.3,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 40,
-    borderColor: "black",
-    borderRadius: 3,
-    borderWidth: 1,
-  },
-
-  container: {
-    paddingVertical: 10,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    marginTop: 10,
-    alignContent: 'space-between'
-  },
-});

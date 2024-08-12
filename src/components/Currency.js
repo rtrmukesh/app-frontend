@@ -35,7 +35,7 @@ const Currency = (props) => {
                     <View
                         style={[
                             styles.container,
-                            { borderColor: error  && !values ?'red' : noEditable ? '#D3D3D3' : 'gray', borderWidth: borderShow ? 1 :  0 }, !title && { marginVertical: 12 }
+                            { borderColor: error  && !values ?'red' : noEditable ? '#D3D3D3' : 'gray', borderWidth: borderShow && !noEditable ? 1 :  0 }, !title && { marginVertical: 12 }
                         ]}>
                         <View style={{ flexDirection: 'row', flex: 1 }}>
                             {!percentage && (<Text style={styles.prefix}>₹</Text>)}

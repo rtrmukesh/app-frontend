@@ -28,7 +28,6 @@ const Status = (props) => {
           borderRadius: 5,
           paddingVertical: 4,
           paddingHorizontal: 15,
-          marginLeft: 9,
         },
         statusText: {
           fontWeight: "bold",

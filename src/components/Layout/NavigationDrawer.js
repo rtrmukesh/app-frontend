@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
@@ -12,11 +11,10 @@ const { height } = Dimensions.get("window");
 
 import AsyncStorage from "../../lib/AsyncStorage";
 
-import AsyncStorageConstants from "../../helper/AsyncStorage";
 
 import Permission from "../../helper/Permission";
 
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native";
 
 import SideMenuCard from "../SideMenuCard";
 
@@ -30,148 +28,195 @@ import { version } from '../../../package.json';
 
 import { FontAwesome5 } from "@expo/vector-icons";
 
-import BottomToolBar from "./bottomToolBar";
-import settingService from "../../services/SettingService";
-import Setting from "../../lib/Setting";
+import Feature from "../../helper/Feature";
 import styles from "../../helper/Styles";
+import Device from "../../lib/Device";
+import Setting from "../../lib/Setting";
+import asyncStorageService from "../../services/AsyncStorageService";
+import PermissionService from "../../services/PermissionService";
+import settingService from "../../services/SettingService";
 const { BluetoothManager } = NativeModules;
 
 const Menu = (props) => {
   useEffect(() => {
     getPermission();
     getThemeColor();
-    getTextColor();
   }, [])
   const navigation = useNavigation();
   const route = useRoute();
   const routeNameArray = route.name.split('/');
-  const menuItemValue = routeNameArray[0];
-  const [permissionList, setPermissionList] = useState();
   const [themeColor,setThemeColor] = useState(Color.WHITE);
   const [textColor,setTextColor] = useState(Color.WHITE)
+  const [devicePendingStatus, setDevicePendingStatus]=useState(false)
+  const [locationId, setLocationId] = useState([]);
+  const [permission, setPermission]=useState({})
+  const isFocused = useIsFocused();
 
+  useEffect(() => {
+    let mount = true;
 
-  const Logout = async () => {
-    await AsyncStorage.clearAll()
+    mount && getLocation();
+    return () => {
+      mount = false;
+  };
+  }, [isFocused])
+  const Logout = async (setSideMenuOpen) => {
+    await AsyncStorage.clearAll();
     navigation.navigate("Login");
+    setSideMenuOpen && setSideMenuOpen(false)
   };
 
-  const getThemeColor = async ()=>{
-    await settingService.get(Setting.PORTAL_HEADER_COLOR,async (err,response)=>{
-      if(response && response.settings && response.settings[0].value){
-        setThemeColor(response.settings[0].value)
+  let navigator= props?.route?.params?.navigator
 
-      } 
-  
-    })
-  }
-  const getTextColor = async () => {
-    await settingService.get(Setting.PORTAL_HEADER_TEXT_COLOR, (err, response) => {
-      if (response && response.settings && response.settings[0].value) {
-        setTextColor(response.settings[0].value)
-      }
-
-    })
-
-
-  }
-  const hasPermission = (permissionList, permission) => {
-    let isExist = false;
-    if (permissionList && permissionList.length > 0) {
-      for (let i = 0; i < permissionList.length; i++) {
-        if (permissionList[i].role_permission == permission) {
-          isExist = true;
-        }
-      }
+  const getThemeColor = async () => {
+    try {
+          await settingService.getByName(Setting.PORTAL_HEADER_COLOR,(err,response)=>{
+            setThemeColor(response)
+          })
+          await settingService.getByName(Setting.PORTAL_HEADER_TEXT_COLOR,(err,response)=>{
+            setTextColor(response)
+          })
+        
+        
+    } catch (error) {
+        console.error("Error retrieving settings:", error);
+        return null;
     }
-    return isExist;
-  };
+};
+
+const getLocation = async()=>{
+  let storeId = await asyncStorageService.getSelectedLocationId()
+  setLocationId(storeId)
+}
+
 
   const getPermission = async () => {
-    //get permission list
-    let permissionList = await AsyncStorage.getItem(AsyncStorageConstants.PERMISSIONS);
-    //validate permission list exist or not
-    if (permissionList) {
 
-      //convert string to JSON
-      permissionList = JSON.parse(permissionList);
-      setPermissionList(permissionList)
-    }
+    const enableSales = await PermissionService.getFeaturePermission(Feature.ENABLE_SALE_SETTLEMENT,Permission.SALE_SETTLEMENT_VIEW);
+    const enablePurchase = await PermissionService.getFeaturePermission(Feature.ENABLE_PURCHASE,Permission.PURCHASE_VIEW);
+    const enableAttendance = await PermissionService.getFeaturePermission(Feature.ENABLE_ATTENDANCE,Permission.ATTENDANCE_VIEW);
+    const enableProducts = await PermissionService.getFeaturePermission(Feature.ENABLE_PRODUCT,Permission.PRODUCT_VIEW);
+    const enableOrders = await PermissionService.getFeaturePermission(Feature.ENABLE_ORDER,Permission.ORDER_VIEW);
+    const enableTransfer = await PermissionService.getFeaturePermission(Feature.ENABLE_TRANSFER,Permission.TRANSFER_VIEW);
+    const enableStock = await PermissionService.getFeaturePermission(Feature.ENABLE_STOCK_ENTRY,Permission.STOCK_ENTRY_VIEW);
+    const enableWishList = await PermissionService.getFeaturePermission(Feature.ENABLE_WISH_LIST,Permission.WISHLIST_VIEW);
+    const enableActivity = await PermissionService.getFeaturePermission(Feature.ENABLE_ACTIVITY,Permission.ACTIVITY_VIEW);
+    const enableTicket = await PermissionService.getFeaturePermission(Feature.ENABLE_TICKET,Permission.TICKET_VIEW);
+    const enableFine = await PermissionService.getFeaturePermission(Feature.ENABLE_FINE,Permission.FINE_VIEW);
+    const enableLocation = await PermissionService.getFeaturePermission(Feature.ENABLE_LOCATION,Permission.LOCATION_VIEW);
+    const enableCandidate = await PermissionService.getFeaturePermission(Feature.ENABLE_CANDIDATE,Permission.CANDIDATE_VIEW);
+    const enableVisitor = await PermissionService.getFeaturePermission(Feature.ENABLE_VISITOR,Permission.VISITOR_VIEW);
+    const enableReplenish = await PermissionService.getFeaturePermission(Feature.ENABLE_REPLENISHMENT,Permission.REPLENISH_VIEW);
+    const enablePayment = await PermissionService.getFeaturePermission(Feature.ENABLE_PAYMENT,Permission.PAYMENT_VIEW);
+    const enableInspection = await PermissionService.getFeaturePermission(Feature.ENABLE_INSPECTION,Permission.INSPECTION_VIEW);
+    const enableUser = await PermissionService.getFeaturePermission(Feature.ENABLE_USER,Permission.USER_VIEW);
+    const enableBills = await PermissionService.getFeaturePermission(Feature.ENABLE_BILL,Permission.BILL_VIEW);
+    const enableLeads = await PermissionService.getFeaturePermission(Feature.ENABLE_LEAD,Permission.LEADS_VIEW);
+    const enableAccounts = await PermissionService.getFeaturePermission(Feature.ENABLE_ACCOUNT,Permission.ACCOUNT_VIEW);
+    const enableGatePass = await PermissionService.getFeaturePermission(Feature.ENABLE_GATE_PASS,Permission.GATE_PASS_VIEW);
+    const enableCustomer = await PermissionService.getFeaturePermission(Feature.ENABLE_CUSTOMER,Permission.CUSTOMER_VIEW);
+    const enablePurchaseOrder = await PermissionService.getFeaturePermission(Feature.ENABLE_PURCHASE_ORDER,Permission.PURCHASE_ORDER_VIEW);
+    const enableSalary = await PermissionService.getFeaturePermission(Feature.ENABLE_SALARY,Permission.SALARY_VIEW);
+    const enableLocationAllocation = await PermissionService.getFeaturePermission(Feature.ENABLE_LOCATION_ALLOCATION,Permission.LOCATION_ALLOCATION_VIEW);
+    const enableDistribution = await PermissionService.getFeaturePermission(Feature.ENABLE_DISTRIBUTION,Permission.DISTRIBUTION_VIEW);
+    const enableSettings = await PermissionService.getFeaturePermission(Feature.ENABLE_SETTING,Permission.SETTINGS_VIEW);
+    const enableSync = await PermissionService.getFeaturePermission(Feature.ENABLE_SYNC,Permission.SYNC_VIEW);
+    const enableOrderProduct = await PermissionService.getFeaturePermission(Feature.ENABLE_ORDER_PRODUCT,Permission.ORDER_PRODUCT_VIEW);
+    const enableRecurringTask = await PermissionService.getFeaturePermission(Feature.ENABLE_RECURRING_TASK,Permission.RECURRING_TASK_VIEW);
+    const enableBulkOrder = await PermissionService.getFeaturePermission(Feature.ENABLE_BULK_ORDER,Permission.BULK_ORDER_VIEW);
+    setPermission({
+      enableSales: enableSales,
+      enablePurchase: enablePurchase,
+      enableAttendance: enableAttendance,
+      enableProducts: enableProducts,
+      enableOrders: enableOrders,
+      enableTransfer: enableTransfer,
+      enableStock: enableStock,
+      enableWishList: enableWishList,
+      enableActivity: enableActivity,
+      enableTicket: enableTicket,
+      enableFine: enableFine,
+      enableLocation: enableLocation,
+      enableCandidate: enableCandidate,
+      enableVisitor: enableVisitor,
+      enableReplenish: enableReplenish,
+      enablePayment: enablePayment,
+      enableInspection: enableInspection,
+      enableUser: enableUser,
+      enableBills: enableBills,
+      enableLeads: enableLeads,
+      enableAccounts: enableAccounts,
+      enableGatePass: enableGatePass,
+      enableCustomer: enableCustomer,
+      enablePurchaseOrder: enablePurchaseOrder,
+      enableSalary: enableSalary,
+      enableLocationAllocation: enableLocationAllocation,
+      enableDistribution: enableDistribution,
+      enableSettings: enableSettings,
+      enableSync: enableSync,
+      enableOrderProduct: enableOrderProduct,
+      enableRecurringTask: enableRecurringTask,
+      enableBulkOrder: enableBulkOrder
+    })
+
+    await Device.isStatusBlocked((devicePendingStatus)=>{
+      setDevicePendingStatus(devicePendingStatus)
+  });
   }
-  let showSales = hasPermission(permissionList, Permission.SALE_SETTLEMENT_VIEW);
-  let showBill = hasPermission(permissionList, Permission.PURCHASE_VIEW);
-  let showAttendance = hasPermission(permissionList, Permission.ATTENDANCE_VIEW);
-  let showProducts = hasPermission(permissionList, Permission.PRODUCT_VIEW);
-  let showOrders = hasPermission(permissionList, Permission.ORDER_VIEW);
-  let showTransfer = hasPermission(permissionList, Permission.TRANSFER_VIEW);
-  let showStock = hasPermission(permissionList, Permission.STOCK_ENTRY_VIEW);
-  let showWishList = hasPermission(permissionList, Permission.WISHLIST_VIEW);
-  let showActivity = hasPermission(permissionList, Permission.ACTIVITY_VIEW);
-  let showSettings = hasPermission(permissionList, Permission.SETTINGS_VIEW);
-  let showTicket = hasPermission(permissionList, Permission.TICKET_VIEW);
-  let showFine = hasPermission(permissionList, Permission.FINE_VIEW);
-  let storeView = hasPermission(permissionList, Permission.LOCATION_VIEW);
-   let showOrderProduct = hasPermission(permissionList,Permission.ORDER_PRODUCT_VIEW)
-  let candidateView = hasPermission(permissionList, Permission.CANDIDATE_VIEW);
-  let showVisitor = hasPermission(permissionList, Permission.VISITOR_VIEW);
-  let showReplenish = hasPermission(permissionList, Permission.REPLENISH_VIEW);
-  let showOrderReport = hasPermission(permissionList, Permission.ORDER_REPORT_VIEW)
-  let showPayment = hasPermission(permissionList, Permission.PAYMENT_VIEW)
-  let showSync = hasPermission(permissionList, Permission.SYNC_VIEW)
-  let showInspection = hasPermission(permissionList, Permission.INSPECTION_VIEW)
-  let showUser = hasPermission(permissionList, Permission.USER_VIEW)
-  let showBills = hasPermission(permissionList, Permission.BILL_VIEW)
-  let showLeads = hasPermission(permissionList, Permission.LEADS_VIEW)
-  let showAccounts = hasPermission(permissionList, Permission.ACCOUNT_VIEW)
-  let showGatePass = hasPermission(permissionList, Permission.GATE_PASS_VIEW)
-
-
-
-
-
-
-
 
   // Render User Profile
   const _renderUserProfile = () => {
-    const { user, updateMenuState } = props;
     return (
       <View
       style={{ ...styles.menu, backgroundColor: themeColor }}
       >
-        <Text style={[styles.name,{color:textColor}]}>Menu</Text>
+        <Text style={[styles.name,{color: Color.NAVIGATION_TEXT}]}>Menu</Text>
         
       </View>
     );
   };
 
   const syncNavigation = async () => {
-
     navigation.navigate("Sync", { syncing: true });
   }
 
 
   // Render Settings
   const _renderStore = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const {  setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Location")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Location"}
         Icon="warehouse"
       />
     );
   };
+
+  const locationAllocation = () => {
+    const {  setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("LocationAllocation")
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Location Allocation"}
+        Icon="location-arrow"
+      />
+    );
+  };
+
   const _renderOrderSalesSettlementDiscrepancyReport = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("OrderSalesSettlementDiscrepancyReport")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Order SalesSelttement Discrepancy Report"}
         Icon="list"
@@ -181,40 +226,54 @@ const Menu = (props) => {
 
   // Render Stocks
   const _renderStocks = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("StockEntry")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Stock Entry"}
-        Icon="warehouse"
+        Icon="list"
       />
     );
   };
 
   const _renderFine = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Fine")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Fines"}
         Icon={"money-bill-alt"}
+        
       />
     );
   };
-
+  const _renderRecurringTask = () => {
+    const { setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("RecurringTask")
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Recurring Task"}
+        Icon={"library"}
+        MaterialCommunityIcon
+      />
+    );
+  };
   const _renderLeads = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Lead")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Leads"}
         Icon={"address-book"}
@@ -223,12 +282,12 @@ const Menu = (props) => {
   };
 
   const _renderGatePass = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("GatePass")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Gate Pass"}
         Icon={"address-book"}
@@ -237,12 +296,12 @@ const Menu = (props) => {
   };
 
   const _renderAccounts = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Accounts")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Accounts"}
         Icon={"bank"}
@@ -252,12 +311,12 @@ const Menu = (props) => {
   };
 
   const _renderInspection = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Inspection")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Inspection"}
         Icon={"note"}
@@ -265,24 +324,14 @@ const Menu = (props) => {
       />
     );
   };
-  const rendorToolBar = () => {
-    const { updateMenuState, setSideMenuOpen, menuOpen } = props;
-    return (
-      <BottomToolBar
-        updateMenuState={updateMenuState}
-        setSideMenuOpen={setSideMenuOpen}
-        menuOpen={menuOpen}
-      />
-    );
-  };
 
   const _renderTicket = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Ticket")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Tickets"}
         Icon="ticket-alt"
@@ -290,12 +339,12 @@ const Menu = (props) => {
     );
   };
   const _renderUser = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Users")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Users"}
         Icon="user"
@@ -303,28 +352,28 @@ const Menu = (props) => {
     );
   };
   const _renderVisitor = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Visitor")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Visitors"}
-        Icon="user-alt"
+        Icon="user-tie"
       />
     );
   };
   const _renderCandidate = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Candidate")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Candidate"}
-        Icon="user-alt"
+        Icon="user-tie"
       />
     );
   };
@@ -333,12 +382,12 @@ const Menu = (props) => {
 
   // Render Bill Entry
   const _renderBillEntry = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Order")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Orders"}
         Icon="receipt"
@@ -347,15 +396,29 @@ const Menu = (props) => {
   };
 
   const _renderOrderProduct = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("OrderProduct")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Order Products"}
-        Icon="cart"
+        Icon="cart-arrow-down"
+      />
+    );
+  };
+
+  const _renderSalary = () => {
+    const { setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("Salary")
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Salary"}
+        Icon="cash"
         MaterialCommunityIcon
       />
     );
@@ -375,8 +438,7 @@ const Menu = (props) => {
       >
         <TouchableOpacity
           onPress={() => {
-            setSideMenuOpen(false)
-            Logout();
+            Logout(setSideMenuOpen);
           }}
           style={{ flexDirection: "row", flex: 1, alignItems: "center" }}
           accessibilityLabel="logout"
@@ -394,12 +456,12 @@ const Menu = (props) => {
 
   // Render Logout
   const _renderAttendance = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Attendance")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Attendance"}
         Icon={"user"}
@@ -414,27 +476,41 @@ const Menu = (props) => {
 
   // Render Logout
   const _renderInventoryTransfer = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("inventoryTransfer")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Transfer"}
         Icon="truck-moving"
       />
     );
   };
-
-  // render Products
-  const _renderProducts = () => {
-    const { navigator, setSideMenuOpen } = props;
+  const _renderDistribution = () => {
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
-          navigator.navigate("Products")
-          setSideMenuOpen(false)
+          navigator.navigate("distributionTransfer")
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Distribution"}
+        Icon="dolly"
+        MaterialCommunityIcon
+      />
+    );
+  };
+
+  // render Products
+  const _renderProducts = () => {
+    const { setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("BrandAndCategoryList")
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Products"}
         Icon="box-open"
@@ -444,12 +520,12 @@ const Menu = (props) => {
 
   // render Products
   const _renderStoreReplenish = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("StoreReplenish")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Store Replenish"}
         Icon="warehouse"
@@ -460,12 +536,12 @@ const Menu = (props) => {
 
   // render Products
   const _renderReplenishProducts = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("ReplenishmentProduct")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Replenish Products"}
         Icon="transfer"
@@ -476,14 +552,14 @@ const Menu = (props) => {
 
   // render Products
   const _renderWishList = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
 
       <SideMenuCard
         Icon="cart-remove"
         onPress={() => {
           navigator.navigate("WishListProducts")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name="Wishlist"
         MaterialCommunityIcon
@@ -500,7 +576,7 @@ const Menu = (props) => {
         Icon="sync"
         onPress={async () => {
           await syncNavigation()
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name="Sync"
         MaterialCommunityIcon
@@ -510,14 +586,14 @@ const Menu = (props) => {
 
   // render sync
   const _renderSale = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
 
       <SideMenuCard
         Icon="file-invoice"
         onPress={() => {
           navigator.navigate("SalesSettlement")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name="Sales Settlement"
       />
@@ -538,12 +614,12 @@ const Menu = (props) => {
   };
 
   const _renderBills = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Bills")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Bills"}
         Icon="money-bill-wave-alt"
@@ -551,53 +627,68 @@ const Menu = (props) => {
     );
   };
   // Render Bill
-  const _renderBill = () => {
-    const { navigator, setSideMenuOpen } = props;
+  const _renderPurchase = () => {
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Purchase")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Purchases"}
-        Icon="money-bill-wave-alt"
+        Icon="store"
+      />
+    );
+  };
+
+  const _renderPurchaseOrder = () => {
+    const { setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("PurchaseOrder")
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Purchase Orders"}
+        Icon="cart"
+        MaterialCommunityIcon
       />
     );
   };
   const _renderPayments = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Payments")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Payments"}
-        Icon="money-bill-alt"
+        Icon="dollar-sign"
       />
     );
   };
   const _renderActivity = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("ActivityList")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Activity"}
-        Icon={"chart-bar"}
+        Icon={"chart-line"}
         MaterialCommunityIcon
       />
     );
   };
   const _customer = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Customers")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Customer"}
         Icon={"user"}
@@ -614,13 +705,13 @@ const Menu = (props) => {
 
   // render sync
   const _renderSettings = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         Icon="cog-outline"
         onPress={() => {
           navigator.navigate("Settings")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name="Settings"
         MaterialCommunityIcon
@@ -631,15 +722,32 @@ const Menu = (props) => {
 
   // Render Order Report
   const _renderOrderReports = () => {
-    const { navigator, setSideMenuOpen } = props;
+    const { setSideMenuOpen } = props;
     return (
       <SideMenuCard
         onPress={() => {
           navigator.navigate("Reports")
-          setSideMenuOpen(false)
+          setSideMenuOpen && setSideMenuOpen(false)
         }}
         name={"Order Report"}
         Icon="list"
+      />
+    );
+  };
+
+  const _renderBulkOrder = () => {
+    const { setSideMenuOpen } = props;
+    return (
+      <SideMenuCard
+        onPress={() => {
+          navigator.navigate("CustomerSelector",{
+            reDirectUrl: "BulkOrder"
+          })
+          setSideMenuOpen && setSideMenuOpen(false)
+        }}
+        name={"Bulk Order"}
+        Icon="cart"
+        MaterialCommunityIcon={true}
       />
     );
   };
@@ -651,40 +759,45 @@ const Menu = (props) => {
       <View style={{ backgroundColor: "gray", height: 0.5 }} />
       <View style={{ flex: 0.9 }}>
         <ScrollView style={{ height: "100%" }}>
-          {showAccounts && _renderAccounts()}
-          {showActivity && _renderActivity && _renderActivity()}
-          {showAttendance && _renderAttendance && _renderAttendance()}
-          {showBills && _renderBills &&_renderBills()}
-          {candidateView && _renderCandidate()}
-          {_customer && _customer()}
-          {showFine && _renderFine && _renderFine()}
-          {showGatePass && _renderGatePass && _renderGatePass()}
-          {showInspection && _renderInspection && _renderInspection()}
-          {showLeads && _renderLeads && _renderLeads()}
-          {storeView && _renderStore()}
-          {showOrders && _renderBillEntry && _renderBillEntry()}
-          {showOrderProduct && _renderOrderProduct &&_renderOrderProduct()}
-          {showPayment && _renderPayments() && _renderPayments()}
-          {showProducts && _renderProducts && _renderProducts()}
-          {showBill && _renderBill && _renderBill()}
-          {showReplenish && _renderReplenishProducts && _renderReplenishProducts()}
-          {showSales && _renderSale && _renderSale()}
-          {showSettings && _renderSettings && _renderSettings()}
-          {showStock && _renderStocks && _renderStocks()}
-          {showReplenish && _renderStoreReplenish && _renderStoreReplenish()}
-          {showSync && _renderSync() && _renderSync()}
-          {showTicket && _renderTicket()}
-          {showTransfer && _renderInventoryTransfer && _renderInventoryTransfer()}
-          {showUser && _renderUser && _renderUser()}
-          {showVisitor && _renderVisitor()}
-          {showWishList && _renderWishList()}
+          {permission?.enableAccounts && _renderAccounts()}
+          {permission?.enableActivity && _renderActivity && _renderActivity()}
+          {permission?.enableAttendance && _renderAttendance && _renderAttendance()}
+          {permission?.enableBills && _renderBills &&_renderBills()}
+          {permission?.enableBulkOrder && _renderBulkOrder()}
+          {permission?.enableCandidate && _renderCandidate()}
+          {permission?.enableCustomer && _customer && _customer()}
+          {permission?.enableDistribution && _renderDistribution && _renderDistribution() }
+          {permission?.enableFine && _renderFine && _renderFine()}
+          {permission?.enableGatePass && _renderGatePass && _renderGatePass()}
+          {permission?.enableInspection && _renderInspection && _renderInspection()}
+          {permission?.enableLeads && _renderLeads && _renderLeads()}
+          {permission?.enableLocation && _renderStore()}
+          {permission?.enableLocationAllocation &&  locationAllocation && locationAllocation()}
+          {permission?.enableOrders && !devicePendingStatus && locationId && _renderBillEntry && _renderBillEntry()}
+          {permission?.enableOrderProduct && _renderOrderProduct &&_renderOrderProduct()}
+          {permission?.enablePayment && _renderPayments() && _renderPayments()}
+          {permission?.enableProducts && !devicePendingStatus && _renderProducts && _renderProducts()}
+          {permission?.enablePurchase && _renderPurchase && _renderPurchase()}
+          {permission?.enablePurchaseOrder && _renderPurchaseOrder && _renderPurchaseOrder()}
+          {permission?.enableRecurringTask && _renderRecurringTask &&  _renderRecurringTask()}
+          {permission?.enableReplenish && _renderReplenishProducts && _renderReplenishProducts()}
+          {permission?.enableSales && _renderSale && _renderSale()}
+          {permission?.enableSettings && _renderSettings && _renderSettings()}
+          {permission?.enableStock && !devicePendingStatus && locationId && _renderStocks && _renderStocks()}
+          {permission?.enableReplenish && _renderStoreReplenish && _renderStoreReplenish()}
+          {permission?.enableSync && _renderSync() && _renderSync()}
+          {permission?.enableSalary && _renderSalary() && _renderSalary()}
+          {permission?.enableTicket && _renderTicket()}
+          {permission?.enableTransfer && !devicePendingStatus && locationId && _renderInventoryTransfer && _renderInventoryTransfer()}
+          {permission?.enableUser && _renderUser && _renderUser()}
+          {permission?.enableVisitor && _renderVisitor()}
+          {permission?.enableWishList && _renderWishList()}
           {_renderDivider()}
           {_renderLogout()}
           {_renderDivider()}
         </ScrollView>
       </View>
       {_renderBuildNumber()}
-      {rendorToolBar()}
     </View>
   );
 };

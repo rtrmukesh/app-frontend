@@ -10,7 +10,7 @@ import ProductCard from '../ProductCard';
 
 import AlertMessage from '../../helper/AlertMessage';
 
-function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, updateAction, id }) {
+function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, updateAction, id, titleMessage, confirmationMessage }) {
     return (
         <Modal
             transparent={true}
@@ -23,7 +23,7 @@ function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, upd
                 <View style={styles.modalContainer}>
 
                     <View style={styles.modalHeader}>
-                        <Text style={styles.title}>Delete Confirmation</Text>
+                        <Text style={styles.title}>{titleMessage? titleMessage: 'Delete Confirmation'}</Text>
                     </View>
 
                     <View style={styles.divider}></View>
@@ -37,7 +37,7 @@ function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, upd
                     ) : (
                         <View style={styles.modalBody}>
                             <View style={{ paddingHorizontal: 10 }}>
-                                <Text>{AlertMessage.DELETE_MODAL_DESCRIPTION}</Text>
+                                <Text>{confirmationMessage ?  confirmationMessage: AlertMessage.DELETE_MODAL_DESCRIPTION}</Text>
                             </View>
                             {item ?
                                 <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>

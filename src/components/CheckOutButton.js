@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Button } from "react-native";
-import { Color } from '../helper/Color';
+import React from "react";
+import { Color } from "../helper/Color";
+import Button from "./Button"
 
 const CheckOutButton = (props) => {
     return (
-        <Button title={"Check Out"} color={Color.RED} onPress={props.onPress} disabled={props.disabled}/>
+        <Button title={"Check Out"}  backgroundColor={Color.RED} onPress={props?.onPress} />
     )
 }
 

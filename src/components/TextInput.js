@@ -13,7 +13,7 @@ const TextInput = ({
     currency,
     required,
     title,
-    editable,
+    editable=true,
     onInputChange,
     containerStyle,
     values,

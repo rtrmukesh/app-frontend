@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import storeService from "../services/StoreService";
-import Select from '../components/Select'
+import Select from './Select'
 import { useIsFocused } from "@react-navigation/native";
 import { useForm } from "react-hook-form";
 import { useNavigation } from "@react-navigation/native";
@@ -8,11 +8,9 @@ import { useNavigation } from "@react-navigation/native";
 
 
 
-const StoreSelect = (props) => {
+const LocationSelect = (props) => {
   const { name, data, label, onChange, disable, divider, showBorder,required, control: controlProp } = props
-  const [storeList, setLocationList] = useState([]);
-  const [selectedLocationId, setStoreId] = useState(selectedLocationName);
-  const [selectedLocationName, setStoreName] = useState(selectedLocationId);
+  const [locationList, setLocationList] = useState([]);
   const isFocused = useIsFocused();
   const navigation = useNavigation();
 
@@ -29,7 +27,7 @@ const StoreSelect = (props) => {
   });
 
   const getStoreList = () => {
-    storeService.list((error, response) => {
+    storeService.list({},(error, response) => {
       const storeListOption = new Array();
       let storeList = response?.data?.data;
       if (storeList && storeList.length > 0) {
@@ -49,7 +47,7 @@ const StoreSelect = (props) => {
   return (
     <Select
       control={controlProp ? controlProp : control}
-      options={storeList}
+      options={locationList}
       OnSelect={onChange}
       label={label}
       name={name}
@@ -62,4 +60,4 @@ const StoreSelect = (props) => {
     />
   )
 };
-export default StoreSelect;
+export default LocationSelect;

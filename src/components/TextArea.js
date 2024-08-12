@@ -14,7 +14,7 @@ const TextArea = ({
     required,
     divider,
     title,
-    editable,
+    editable=true,
     values,
     showBorder,
     style,
@@ -71,14 +71,14 @@ const TextArea = ({
             rules={required ? { required: `Enter ${placeholder}` } : ""}
             render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
                 <>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={styles.label}>
                         {title && <Label text={title} bold={true} />}
-                        {title && required && <Text style={{ color: 'red', paddingHorizontal: 3 }}>*</Text>}
+                        {title && required && <Text style={{ color: 'red'}}>*</Text>}
                     </View>
                     <View
                         style={[
                             styles.container,
-                            { borderColor: error && 'red', borderWidth: currency ? 0 : borderShow ? 1 : 0 },
+                            { borderColor: error && 'red', borderWidth: currency ? 0 : !editable ? 0: borderShow ? 1 : 0 },
                         ]}>
                              <TextInput
                                 value={value || values}
@@ -128,6 +128,9 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 8,
 
+    },
+    label : {
+        flexDirection: 'row' ,marginBottom: 3 
     },
     input: {
         fontSize: 16,

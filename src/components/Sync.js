@@ -56,7 +56,6 @@ const Sync = () => {
     return (
         <Layout
             title="Sync"
-            bottomToolBar={true}
         > 
            {syncing&&( <Text style={style.textStyle}>{syncing && 'Syncing....'}</Text>)}
             <Text style={style.dateStyle}>{!syncing && `LastSynced At: ${DateTime.currentDate(LastSynced)}`}</Text>

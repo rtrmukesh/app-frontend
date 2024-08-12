@@ -40,11 +40,11 @@ const HistoryList = (props) => {
           </View>
           </View>
            <View style={styles.cardDate}>
-           <DateText date={DateTime.formatDate(item.updatedAt)} />
+           <DateText date={item.updatedAt} />
          </View>
-         <View style={styles.summary}>
+         <View>
         {item.message && item.message.length > 0 && item.message.map((item, index) => (
-       <Text  key={index}>{item}</Text>
+       <Text style={styles.cardDate} key={index}>{item}</Text>
 ))}
         </View>
          </View>
