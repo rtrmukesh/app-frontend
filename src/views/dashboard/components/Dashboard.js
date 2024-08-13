@@ -1,14 +1,14 @@
 // components/Dashboard.js
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-// import AddressCard from './AddressCard';
+import AddressCard from './AddressCard';
 
 const Dashboard = () => {
   return (
     <View style={styles.container}>
       <Text style={[styles.hello,styles.text]}>Hello! <Text style={[styles.name,styles.text]}>Suganthi Mukesh</Text></Text>
       <View style={{marginTop:13}}>
-      {/* <AddressCard/> */}
+      <AddressCard/>
       </View>
     </View>
   );
