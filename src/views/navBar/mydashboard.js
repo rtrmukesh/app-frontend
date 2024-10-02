@@ -5,7 +5,7 @@ import {
 import React from "react";
 import { Image, Text, View } from "react-native";
 import CustomDrawerItem from "../../components/CustomDrawerItem";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "../dashboard/Dashboard";
 import CCTVPage from "../Cctv";
 import CameraExample from "../samsungCameraIssue";
 import CheckMobileNumber from "../checkMobBusyOrNot";
@@ -53,7 +53,7 @@ const CustomDrawerContent = (props) => {
   );
 };
 
-const Mydashboard = (props) => {
+const NavBar = (props) => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Dashboard" component={Dashboard} />
@@ -65,4 +65,4 @@ const Mydashboard = (props) => {
   );
 };
 
-export default Mydashboard;
+export default NavBar;
