@@ -1,7 +1,7 @@
 // components/Dashboard.js
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import AddressCard from './AddressCard';
+import AddressCard from './components/AddressCard';
 
 const Dashboard = () => {
   return (
