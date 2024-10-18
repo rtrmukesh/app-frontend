@@ -10,6 +10,7 @@ import CCTVPage from "../Cctv";
 import CameraExample from "../samsungCameraIssue";
 import CheckMobileNumber from "../checkMobBusyOrNot";
 import ImageCarousel from "../imageCarousel";
+import Profile from "../profile";
 const Drawer = createDrawerNavigator();
 
 
@@ -21,6 +22,7 @@ const CustomDrawerContent = (props) => {
     { name: "CheckMobile", icon: "phone" },
     { name: "Setting", icon: "cog-outline" }, 
     { name: "ImageCarousel", icon: "cog-outline" }, 
+    { name: "Profile", icon: "account-circle" }, 
   ];
 
 
@@ -61,6 +63,7 @@ const NavBar = (props) => {
       <Drawer.Screen name="Camera" component={CameraExample} />
       <Drawer.Screen name="CheckMobile" component={CheckMobileNumber} />
       <Drawer.Screen name="ImageCarousel" component={ImageCarousel} />
+      <Drawer.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );
 };
