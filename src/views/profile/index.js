@@ -13,7 +13,9 @@ const Profile = (props) => {
   const skills = ['JavaScript', 'React Native', 'Node.js', 'CSS', 'HTML', 'Redux', 'MongoDB', 'GraphQL', 'Express'];
 
   return (
-    <Layout>
+    <Layout
+    showFooter={false}
+    >
       <ScrollView>
         <UserProfileCard
           imageUri="https://sugamukesh.s3.eu-north-1.amazonaws.com/1726828835360.jpg"
@@ -23,7 +25,7 @@ const Profile = (props) => {
           description={
             "Full Stack Developer with 10+ years of experience in building scalable web applications and services. Proficient in JavaScript, Python, and cloud technologies."
           }
-          descriptionFontSize={12}
+          descriptionFontSize={13}
         />
         <Description
           title="About Me"

@@ -63,9 +63,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   description: {
-    fontSize: width > 600 ? 18 : 14,
+    fontSize: width > 600 ? 18 : 16,
     color: '#333',
-  },
+    fontFamily: 'Roboto',
+    },
 });
 
 export default Description;
