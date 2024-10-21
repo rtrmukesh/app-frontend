@@ -11,6 +11,7 @@ import CameraExample from "../samsungCameraIssue";
 import CheckMobileNumber from "../checkMobBusyOrNot";
 import ImageCarousel from "../imageCarousel";
 import Profile from "../profile";
+import GalleryDashboard from "../Gallery";
 const Drawer = createDrawerNavigator();
 
 
@@ -18,6 +19,7 @@ const CustomDrawerContent = (props) => {
   const menuItems = [
     { name: "Dashboard", icon: "home" }, 
     { name: "Profile", icon: "account-circle" }, 
+    { name: "Gallery", icon: "gallery" }, 
     { name: "CCTV", icon: "cctv" }, 
     { name: "Camera", icon: "Camera" }, 
     { name: "CheckMobile", icon: "phone" },
@@ -64,6 +66,7 @@ const NavBar = (props) => {
       <Drawer.Screen name="CheckMobile" component={CheckMobileNumber} />
       <Drawer.Screen name="ImageCarousel" component={ImageCarousel} />
       <Drawer.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+      <Drawer.Screen name="Gallery" component={GalleryDashboard} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );
 };
