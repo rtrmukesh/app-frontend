@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 
 const Badge = ({ skill }) => {
     return (
@@ -74,6 +74,7 @@ const ScrollableBadge = ({ title, badgeArray=[] }) => {
         </View>
     );
 };
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     title: {
-        fontSize: 24,
+        fontSize: width > 600 ? 24 : 18,
         fontWeight: 'bold',
         marginBottom: 16,
     },

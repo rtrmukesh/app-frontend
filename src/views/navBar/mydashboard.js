@@ -17,12 +17,12 @@ const Drawer = createDrawerNavigator();
 const CustomDrawerContent = (props) => {
   const menuItems = [
     { name: "Dashboard", icon: "home" }, 
+    { name: "Profile", icon: "account-circle" }, 
     { name: "CCTV", icon: "cctv" }, 
     { name: "Camera", icon: "Camera" }, 
     { name: "CheckMobile", icon: "phone" },
     { name: "Setting", icon: "cog-outline" }, 
     { name: "ImageCarousel", icon: "cog-outline" }, 
-    { name: "Profile", icon: "account-circle" }, 
   ];
 
 

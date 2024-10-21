@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import {
   View,
@@ -13,18 +14,22 @@ import Icon from 'react-native-vector-icons/Ionicons'; // You can use any icon l
 
 const { width } = Dimensions.get("window");
 
-const Layout = ({ HeaderLabel="Mukesh Profile", footerContent, children, onBackPress, onSettingsPress }) => {
+const Layout = (props) => {
+  let { HeaderLabel="Mukesh Profile", footerContent, children, onBackPress, onSettingsPress, showFooter=true, showStatusBar=true, showHeader=true } = props;
+  let navigation = useNavigation();
+
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* ✴---StatusBar---✴ */}
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      {showStatusBar && <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />}
 
       {/* ✴---Container---✴ */}
       <View style={styles.container}>
 
         {/* ✴---Header with Back Icon, Title, and Settings Icon---✴ */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onBackPress} style={styles.iconContainer}>
+     {showHeader && <View style={styles.header}>
+          <TouchableOpacity onPress={()=> onBackPress ? onBackPress : navigation.goBack() } style={styles.iconContainer}>
           <Icon name="arrow-back" size={24} color="black" />
 
           </TouchableOpacity>
@@ -34,15 +39,15 @@ const Layout = ({ HeaderLabel="Mukesh Profile", footerContent, children, onBackP
           <TouchableOpacity onPress={onSettingsPress} style={styles.iconContainer}>
             <Icon name="settings" size={24} color="black" />
           </TouchableOpacity>
-        </View>
+        </View>}
 
         {/* ✴---Body---✴ */}
         <ScrollView style={styles.body}>{children}</ScrollView>
 
         {/* ✴---Footer---✴ */}
-        <View style={styles.footer}>
+        {showFooter && <View style={styles.footer}>
           <Text style={styles.footerText}>{footerContent}</Text>
-        </View>
+        </View>}
       </View>
     </SafeAreaView>
   );
