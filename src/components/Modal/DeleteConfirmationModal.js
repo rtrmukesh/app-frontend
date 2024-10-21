@@ -1,16 +1,14 @@
 import React from 'react';
 
-import { Modal, View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { Color } from '../../helper/Color';
 
 import { verticalScale } from "../Metrics";
 
-import ProductCard from '../ProductCard';
-
 import AlertMessage from '../../helper/AlertMessage';
 
-function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, updateAction, id, titleMessage, confirmationMessage }) {
+function DeleteModal({ toggle, modalVisible, CancelAction, item, updateAction, id, titleMessage, confirmationMessage }) {
     return (
         <Modal
             transparent={true}
@@ -77,7 +75,7 @@ function DeleteConfirmationModal({ toggle, modalVisible, CancelAction, item, upd
     );
 }
 
-export default DeleteConfirmationModal;
+export default DeleteModal;
 
 const styles = StyleSheet.create({
     container: {

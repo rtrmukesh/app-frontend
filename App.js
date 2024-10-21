@@ -9,6 +9,7 @@ import CCTVPage from "./src/views/Cctv";
 import CheckMobileNumber from "./src/views/checkMobBusyOrNot";
 import ImageCarousel from "./src/views/imageCarousel";
 import Profile from './src/views/profile';
+import GalleryDashboard from './src/views/Gallery';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
           <Stack.Screen name='CheckMobile' component={CheckMobileNumber} />
           <Stack.Screen name='ImageCarousel' component={ImageCarousel} />
           <Stack.Screen name='profile' component={Profile} />
+          <Stack.Screen name='Gallery' component={GalleryDashboard} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
